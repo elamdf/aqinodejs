@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
+    "async": "^3.2.0",
     "body-parser": "^1.18.2",
     "express": "^4.17.1",
     "express-handlebars": "^3.0.0",

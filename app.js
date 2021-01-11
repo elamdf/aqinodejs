@@ -42,96 +42,24 @@ app.post("/in", function (req, res) {
 		if (err) throw err;
 	});
 	// con.query('SELECT * from sensdata', function (err, result){
+	// con.query('SELECT * FROM sensdata WHERE id = ?', [id], function (err, results) { // maybe useful for individual sensor graphs
 	// 	if (err) throw err;
 	// 	console.log(result);
 	// });
 	res.sendStatus(200);
 })
-// var pos = 0;
-// var ids = 1
-// io.sockets.on('connection', function (socket) {
-
-//   var max = 100
-
-//   // generate a sample every second
-//     setInterval(function() {
-//         var x = (new Date()).getTime(), // current time
-//             y = Math.floor((Math.random() * max) + 1);
-//         // socket.emit('sample', {
-//         // 	x: x,
-//         // 	y: y
-//         // });
-//             	  socket.emit('chart_data', {
-// 		      id: pos,
-// 		      x: x,
-// 		      y: y
-// 		  });
-// //         console.info("emitted: [" + x + "," + y + "]");
-//     }, 1000);
-// });
 io.sockets.on('connection', function (socket) {
-	var pos = 0
-		  wt = 1000;
-	    setInterval(function() {
-        con.query('SELECT * FROM sensdata WHERE id = 1', function (err, results) {
-          if (err) {
-            console.info(err);
-          } else {
-	var wt = 10;
-		  if (pos < results.length){
-		  var x = results[pos].time;
-		  var y = results[pos].temp;
-		  console.log("x " + x);
-		  console.log("y " + y);
-			  var data = []
-		 for (var i=0; i < results.length; i++){
-			data.push([results[i].time, results[i].temp]);
-		 }
-            	  socket.emit('chart_data', {
-		      id: 1,
-		      x: x,
-		      y: y,
-		      data: data
-		    });
-			pos++;}
-		  else{
-			  console.log("waiting for more data; pos="+ pos);
-			  console.log("results size is " + results.length);
-			  wt = 500;
-          }
-        }
-      });
-    }, wt);
-  });
-// io.sockets.on('connection', function (socket) {
-// 	console.log("socket connected");
-//     var timer = setInterval(function() {
-//       if (pos++< ids) {
-//         con.query('SELECT * FROM sensdata WHERE id = ?', [pos], function (err, results) {
-//           if (err) {
-//             console.info(err);
-//           } else {
-// 		  var x = [];
-// 		  var y = []
-// 		for (var i=0; i < results.length; i++){
-// 			x.push(results[i].time);
-// 			y.push(results[i].temp);
-// 		}
-// 		  console.log("x " + x);
-// 		  console.log("y " + y);
-//             socket.emit('chart_data', {
-// 	      id: pos,
-//               x: x,
-//               y: y
-//             });
-//             console.info("emitted for id: "+ pos)
-//           }
-//         });
-//       } else {
-//         clearInterval(timer);
-//       }
-//     }, 1000);
-//   });
+	var id = 1
+	con.query('SELECT DISTINCT id from sensdata', function (err, results){
+			if (err) throw err;
+			results.forEach(elem =>{
+				con.query('SELECT time, temp FROM sensdata WHERE id = ?', [elem.id], function (err, results) {
+					if (err) throw err;
+					socket.emit("chartinit", {data:results.map(Object.values), id:"Sensor " +elem.id})
+			});
+		});
+	});
+});
 
 http.listen(port, function(){
 	console.log("app listening on port: " + port);

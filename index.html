@@ -25,7 +25,6 @@
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
 <script>
 $(function() {
-	console.log("func called")
   Highcharts.setOptions({
 		global: {
 			useUTC: false
@@ -33,7 +32,7 @@ $(function() {
 	});
 
 	var graph = new Highcharts.Chart({
-		title: { text: 'Real Time Samples' },
+		title: { text: 'Realtime Air Temp' },
 		xAxis: {
 			type: 'datetime',
 			tickPixelInterval: 10
@@ -56,25 +55,13 @@ $(function() {
 			type: 'spline',
 			renderTo: 'graph_container',
 			events: {
-				load: function() {
-					console.log("chart func called")
-					var series = this.series[0];
-				    var socket = io('ws://127.0.0.1:3257');
-				    socket.on('chart_data', function (sample) {
-					    console.log('new datapoint');
-				    	// when a sample arrives we plot it
-					    console.log(sample.data);
-					    	series.setData(sample.data);
-						<!-- series.addPoint([sample.x, sample.y], true); -->
-				    });
-				}
 			}
-		},
-		series: [{
-
-		}]
+		}
 	});
 
+socket.on('chartinit', function (sample) { // initalize with historical data
+	graph.addSeries({data:sample.data, name:sample.id});
+});
 });
 </script>
 </body>
