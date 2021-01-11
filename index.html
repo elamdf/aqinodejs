@@ -13,5 +13,69 @@
     <input type="text" name="id">
     <input type="text" name="temp">
     <input type="submit" value="Submit">
-</form></body>
+</form>
+<div id="graph_container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+	<script src='/socket.io/socket.io.js'>
+	</script>
+	<script>
+		var socket = io();
+	</script>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script>
+$(function() {
+	console.log("func called")
+  Highcharts.setOptions({
+		global: {
+			useUTC: false
+		}
+	});
+
+	var graph = new Highcharts.Chart({
+		title: { text: 'Real Time Samples' },
+		xAxis: {
+			type: 'datetime',
+			tickPixelInterval: 10
+		},
+		yAxis: {
+			title: { text: 'temp' },
+			tickInterval: 10,
+			min: 0,
+			max: 100
+		},
+		tooltip: {
+            formatter: function() {
+                return '<b>'+ this.series.name + '</b><br/>'
+                    + '[ ' + Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x)
+                    + ' , '
+                    + this.y + ' ]';
+            }
+		},
+		chart: {
+			type: 'spline',
+			renderTo: 'graph_container',
+			events: {
+				load: function() {
+					console.log("chart func called")
+					var series = this.series[0];
+				    var socket = io('ws://127.0.0.1:3257');
+				    socket.on('chart_data', function (sample) {
+					    console.log('new datapoint');
+				    	// when a sample arrives we plot it
+					    console.log(sample.data);
+					    	series.setData(sample.data);
+						<!-- series.addPoint([sample.x, sample.y], true); -->
+				    });
+				}
+			}
+		},
+		series: [{
+
+		}]
+	});
+
+});
+</script>
+</body>
 </html>
