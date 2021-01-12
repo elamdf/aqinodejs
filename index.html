@@ -14,7 +14,8 @@
     <input type="text" name="temp">
     <input type="submit" value="Submit">
 </form>
-<div id="graph_container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+<div id="tempChart_container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+<div id="humidityChart_container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
 	<script src='/socket.io/socket.io.js'>
 	</script>
 	<script>
@@ -24,48 +25,60 @@
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
 <script>
-$(function() {
-  Highcharts.setOptions({
-		global: {
-			useUTC: false
-		}
-	});
-
-	var graph = new Highcharts.Chart({
+	var tempChart = new Highcharts.Chart({
 		title: { text: 'Realtime Air Temp' },
 		xAxis: {
 			type: 'datetime',
 			tickPixelInterval: 10
 		},
 		yAxis: {
-			title: { text: 'temp' },
+			title: { text: 'temp (c)' },
+			tickInterval: 5,
+			min: 20,
+			max: 80
+		},
+		chart: {
+			type: 'spline',
+			renderTo: 'tempChart_container',
+			events: {
+			}
+		},
+	});
+	var humidityChart = new Highcharts.Chart({
+		title: { text: 'Realtime Air Humidity' },
+		xAxis: {
+			type: 'datetime',
+			tickPixelInterval: 10
+		},
+		yAxis: {
+			title: { text: 'Humidity (%)' },
 			tickInterval: 10,
 			min: 0,
 			max: 100
 		},
-		tooltip: {
-            <!-- formatter: function() { -->
-            <!--     return '<b>'+ this.series.name + '</b><br/>' -->
-            <!--         + '[ ' + Highcharts.dateFormat('%Y %m %d %H:%M:%S', this.x) -->
-            <!--         + ' , ' -->
-            <!--         + this.y + ' ]'; -->
-            <!-- } -->
-		},
 		chart: {
 			type: 'spline',
-			renderTo: 'graph_container',
+			renderTo: 'humidityChart_container',
 			events: {
 			}
 		}
 	});
+$(function() {
 
 socket.on('chartinit', function (sample) { // initalize with historical data
-	graph.addSeries({data:sample.data, name:"sensor " + sample.id, id:sample.id});
+	tempChart.addSeries({data:(sample.data.map(function(value,index) { return  [value[0], value[1]]})), name:sample.name, id:sample.id});
+	humidityChart.addSeries({data:(sample.data.map(function(value,index) { return  [value[0], value[2]]})), name:sample.name, id:sample.id});
 });
 socket.on('update', function (sample){
-	graph.get(sample.id).addPoint(sample.data[0], sample.data[1]);
+	tempChart.get(sample.id).addPoint(sample.data[0], sample.data[1]);
+	humidityChart.get(sample.id).addPoint(sample.data[0], sample.data[2]);
 });
 });
+</script>
+</body>
+</html>
+</body>
+</html>
 </script>
 </body>
 </html>
