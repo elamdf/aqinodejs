@@ -44,12 +44,12 @@ $(function() {
 			max: 100
 		},
 		tooltip: {
-            formatter: function() {
-                return '<b>'+ this.series.name + '</b><br/>'
-                    + '[ ' + Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x)
-                    + ' , '
-                    + this.y + ' ]';
-            }
+            <!-- formatter: function() { -->
+            <!--     return '<b>'+ this.series.name + '</b><br/>' -->
+            <!--         + '[ ' + Highcharts.dateFormat('%Y %m %d %H:%M:%S', this.x) -->
+            <!--         + ' , ' -->
+            <!--         + this.y + ' ]'; -->
+            <!-- } -->
 		},
 		chart: {
 			type: 'spline',
@@ -60,7 +60,10 @@ $(function() {
 	});
 
 socket.on('chartinit', function (sample) { // initalize with historical data
-	graph.addSeries({data:sample.data, name:sample.id});
+	graph.addSeries({data:sample.data, name:"sensor " + sample.id, id:sample.id});
+});
+socket.on('update', function (sample){
+	graph.get(sample.id).addPoint(sample.data[0], sample.data[1]);
 });
 });
 </script>
