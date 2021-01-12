@@ -8,7 +8,6 @@ app.engine("handlebars", handlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 app.use(bodyParser.urlencoded({ lextended:true}));
 var port = 3257;
-var novel = 0;
 /* set up sql con */
 var mysql = require("mysql");
 var con = mysql.createConnection({
@@ -44,7 +43,7 @@ app.post("/in", function (req, res) {
 			throw err;
 			res.sendStatus(500);
 		}
-		novel = 1;
+		updateData();
 	});
 	// con.query('SELECT * from sensdata', function (err, result){
 	// con.query('SELECT * FROM sensdata WHERE id = ?', [id], function (err, results) { // maybe useful for individual sensor graphs
@@ -66,21 +65,17 @@ io.sockets.on('connection', function (socket) {
 	});
 });
 
-var recent = {}
-setInterval(function() {
+function updateData() {
 	con.query('SELECT DISTINCT id from sensdata', function (err, results){
 			if (err) throw err;
 			results.forEach(elem =>{
 				con.query("SELECT time, temp FROM sensdata WHERE id = ? ORDER BY time DESC LIMIT 1", [elem.id], function (err, result) {
 					if (err) throw err;
-					if (novel){
-						io.emit("update", {data:result.map(Object.values), id:elem.id})
-						novel = 0;
-					}
+						io.emit("update", {data:result.map(Object.values), id:elem.id});
 			});
 		});
 	});
-}, 1000);
+}
 
 http.listen(port, function(){
 	console.log("app listening on port: " + port);
