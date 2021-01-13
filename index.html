@@ -10,6 +10,19 @@
 
 <body>
 <p id="averages"> </p>
+<form id="timeScaleForm">
+	I want data from since <input type="text" name="timeVal"> hours ago
+	<input type="button" onclick="updateTimeScale()">
+</form>
+	<script>
+		function updateTimeScale(){
+			socket.emit("newTimescale", document.forms["timeScaleForm"]["timeVal"].value * 3600000);
+			charts.forEach(elem => {
+			while(elem.series.length > 0)
+			    elem.series[0].remove(true);
+			});
+		}
+	</script>
 <div id="tempChart_container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
 <div id="humidityChart_container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
 	<script src='/socket.io/socket.io.js'>
@@ -60,6 +73,7 @@
 			}
 		}
 	});
+	var charts = [tempChart, humidityChart];
 $(function() {
 
 socket.on('chartInit', function (sample) { // initalize with historical data
@@ -70,8 +84,7 @@ socket.on('chartUpdate', function (sample){
 	tempChart.get(sample.id).addPoint(sample.data[0], sample.data[1]);
 	humidityChart.get(sample.id).addPoint(sample.data[0], sample.data[2]);
 });
-socket.on("averageUpdate", function (sample){
-	console.log(sample)
+socket.on("averagesInit", function (sample){
 	document.getElementById("averages").innerHTML = `<b>Average Temperature:</b>${sample.data[0]}°C <b>Average Humidity:</b>${sample.data[1]}% <b>Average Pressure:</b> ${sample.data[2]}hPa`
 });
 });
