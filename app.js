@@ -38,14 +38,25 @@ app.get('/', function(req, res){
 
 
 app.post("/in", function (req, res) {
-	con.query(`INSERT INTO sensdata (id, name, temp, humidity, pressure, altitude) VALUES (${req.body.id}, "${req.body.name}", ${req.body.temp}, ${req.body.humidity}, ${req.body.pressure}, ${req.body.altitude})`, function (err, result){
-		if (err){
-			throw err;
-			res.sendStatus(500);
-		}
-		updateData();
-	});
-	res.sendStatus(200);
+	if (req.body.time != undefined){
+		con.query(`INSERT INTO sensdata (id, time, name, temp, humidity, pressure, altitude) VALUES (${req.body.id}, "${req.body.time}", "${req.body.name}", ${req.body.temp}, ${req.body.humidity}, ${req.body.pressure}, ${req.body.altitude})`, function (err, result){
+			if (err){
+				throw err;
+				res.sendStatus(500);
+			}
+			updateData();
+		});
+	} else {
+		con.query(`INSERT INTO sensdata (id, name, temp, humidity, pressure, altitude) VALUES (${req.body.id}, "${req.body.name}", ${req.body.temp}, ${req.body.humidity}, ${req.body.pressure}, ${req.body.altitude})`, function (err, result){
+			if (err){
+				throw err;
+				res.sendStatus(500);
+			}
+			updateData();
+			updateAverages(1);
+		});
+	}
+		res.sendStatus(200);
 })
 io.sockets.on('connection', function (socket) {
 	var id = 1
@@ -54,19 +65,36 @@ io.sockets.on('connection', function (socket) {
 			results.forEach(elem =>{
 				con.query('SELECT UNIX_TIMESTAMP(time), temp, humidity, pressure, altitude, name FROM sensdata WHERE id = ?', [elem.id], function (err, results) {
 					if (err) throw err;
-					socket.emit("chartinit", {data:results.map(Object.values), id:elem.id, name:elem.name})
+					socket.emit("chartInit", {data:results.map(Object.values), id:elem.id, name:elem.name})
+					updateAverages(1);
 			});
 		});
 	});
 });
+function updateAverages(time){ // TODO make the averages not just alltime
+	con.query('SELECT DISTINCT id, name from sensdata', function (err, results){
+			if (err) throw err;
+			results.forEach(elem =>{
+				con.query("SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata WHERE id = ?", [elem.id], function (err, results){
+					if (err) throw err;
+						io.emit("averageUpdate", {data:results.map(Object.values), id:elem.id, name:elem.name});
+						con.query("SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata", [elem.id], function (err, results){
+							io.emit("averageUpdate", {data:results.map(Object.values)[0], id:"all".id, name:"all"});
+						});
+					});
+			});
+	});
+}
+
 
 function updateData() {
+
 	con.query('SELECT DISTINCT id, name from sensdata', function (err, results){
 			if (err) throw err;
 			results.forEach(elem =>{
 				con.query("SELECT UNIX_TIMESTAMP(time), temp, humidity, pressure,altitude FROM sensdata WHERE id = ? ORDER BY time DESC LIMIT 1", [elem.id], function (err, results) {
 					if (err) throw err;
-						io.emit("update", {data:results.map(Object.values), id:elem.id, name:elem.name});
+						io.emit("chartUpdate", {data:results.map(Object.values), id:elem.id, name:elem.name});
 			});
 		});
 	});
