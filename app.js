@@ -63,34 +63,51 @@ io.sockets.on('connection', function (socket) {
 	initGraphs(socket);
 	initAverages(socket);
 	socket.on("newTimescale", function (time) {
-		initGraphs(socket, time);
-		initAverages(socket, time);
+		initGraphs(socket, time.from, time.to);
+		initAverages(socket, time.from, time.to);
 	});
 });
-function initGraphs(socket, timeAgo=(+new Date())){
+function initGraphs(socket, timeSince=(+new Date())){
 	var id = 1
 	con.query('SELECT DISTINCT id, name from sensdata', function (err, results){
 			if (err) throw err;
 			results.forEach(elem =>{
-				con.query(`SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, pressure, altitude, name FROM sensdata WHERE id = ? AND UNIX_TIMESTAMP(time) > ${Math.floor((+new Date() - timeAgo) / 1000)}`, [elem.id], function (err, results) {
+				con.query(`SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, pressure, altitude, name FROM sensdata WHERE id = ? AND UNIX_TIMESTAMP(time) > ${Math.floor((+new Date() - timeSince) / 1000)}`, [elem.id], function (err, results) {
 					if (err) throw err;
-					console.log(" time since = " + Math.floor(+new Date() - timeAgo));
 					socket.emit("chartInit", {data:results.map(Object.values), id:elem.id, name:elem.name})
 			});
 		});
 	});
 };
-function initAverages(socket, timeAgo=(+new Date())){ // TODO make the averages not just alltimeInit
+function initAverages(socket, timeSince=0, timeTo=0){ // TODO make the averages not just alltimeInit
 	con.query('SELECT DISTINCT id, name from sensdata', function (err, results){
 			if (err) throw err;
 			results.forEach(elem =>{
-				con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata WHERE id = ? AND UNIX_TIMESTAMP(time) > ${Math.floor((+new Date() - timeAgo) / 1000)}`, [elem.id], function (err, results){
-					if (err) throw err;
-						socket.emit("averagesInit", {data:results.map(Object.values)[0], id:elem.id, name:elem.name});
-						con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata WHERE UNIX_TIMESTAMP(time) > ${Math.floor(+new Date() - timeAgo)}`, [elem.id], function (err, results){
-							socket.emit("averagesInit", {data:results.map(Object.values)[0], id:"all".id, name:"all"});
-						});
+				if(timeSince && timeTo){
+					con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata WHERE id = ? AND UNIX_TIMESTAMP(time) > ${Math.floor((+new Date() - timeSince) / 1000)} AND UNIX_TIMESTAMP(time) < ${Math.floor((+new Date() - timeTo) / 1000)}`, [elem.id], function (err, results){
+						if (err) throw err;
+							socket.emit("averagesInit", {data:results.map(Object.values)[0], id:elem.id, name:elem.name});
+							con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata WHERE id = ? AND UNIX_TIMESTAMP(time) > ${Math.floor((+new Date() - timeSince) / 1000)} AND UNIX_TIMESTAMP(time) < ${Math.floor((+new Date() - timeTo) / 1000)}`, [elem.id], function (err, results){
+								socket.emit("averagesInit", {data:results.map(Object.values)[0], id:"all".id, name:"all"});
+							});
 					});
+				} else if (timeSince) {
+					con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata WHERE id = ? AND UNIX_TIMESTAMP(time) > ${Math.floor((+new Date() - timeSince) / 1000)}`, [elem.id], function (err, results){
+						if (err) throw err;
+							socket.emit("averagesInit", {data:results.map(Object.values)[0], id:elem.id, name:elem.name});
+							con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata WHERE UNIX_TIMESTAMP(time) > ${Math.floor(+new Date() - timeSince)}`, [elem.id], function (err, results){
+								socket.emit("averagesInit", {data:results.map(Object.values)[0], id:"all".id, name:"all"});
+							});
+					});
+				} else {
+					con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata WHERE id = ?`, [elem.id], function (err, results){
+						if (err) throw err;
+							socket.emit("averagesInit", {data:results.map(Object.values)[0], id:elem.id, name:elem.name});
+							con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(altitude) FROM sensdata`, [elem.id], function (err, results){
+								socket.emit("averagesInit", {data:results.map(Object.values)[0], id:"all".id, name:"all"});
+							});
+					});
+				}
 			});
 	});
 }
