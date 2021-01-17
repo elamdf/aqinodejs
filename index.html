@@ -3,8 +3,8 @@
 <html lang="en">
 <head>
 <script src="https://code.highcharts.com/stock/highstock.js"></script>
-<script src="http://code.jquery.com/jquery-latest.js"></script>
-<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.jquery.com/jquery-latest.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src='/socket.io/socket.io.js'></script>
 <script>
 var socket = io();
@@ -88,8 +88,8 @@ socket.on('chartInit', function (sample) { // initalize with historical data
 	humidityChart.addSeries({data:(sample.data.map(function(value,index) { return  [value[0], value[2]]})), name:sample.name, id:sample.id});
 });
 socket.on('chartUpdate', function (sample){
-	tempChart.get(sample.id).addPoint(sample.data[0], sample.data[1]);
-	humidityChart.get(sample.id).addPoint(sample.data[0], sample.data[2]);
+	tempChart.get(sample.id).addPoint([sample.data[0][0], sample.data[0][1]]);
+	humidityChart.get(sample.id).addPoint([sample.data[0][0], sample.data[0][2]]);
 });
 socket.on("averagesInit", function (sample){
 	document.getElementById("averages").innerHTML = `<b>Average Temperature:</b>${sample.data[0]}°C <b>Average Humidity:</b>${sample.data[1]}% <b>Average Pressure:</b> ${sample.data[2]}hPa`

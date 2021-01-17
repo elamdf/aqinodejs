@@ -1,0 +1,18 @@
+FROM node:15.5.1
+
+ENV MYSQL_HOST=aqisens.cdez79drr72p.us-east-2.rds.amazonaws.com
+ENV MYSQL_PORT=3306
+ENV MYSQL_DATABASE=aqidb
+ENV MYSQL_USER=admin
+ENV MYSQL_PASSWORD=w8NM%t1cBxnHCGfIq1HGF
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 80
+CMD ["npm", "start"]

@@ -3,19 +3,19 @@ var bodyParser = require("body-parser");
 var urlencodedParser = bodyParser.urlencoded({extended: true});
 var handlebars = require("express-handlebars");
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const io = require('socket.io')(http, { transports: ['websocket', 'polling'], cookie:true, secure: true });
 app.engine("handlebars", handlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 app.use(bodyParser.urlencoded({ lextended:true}));
-var port = 3257;
+var port = 80;
 /* set up sql con */
 var mysql = require("mysql");
 var con = mysql.createConnection({
-    host            : process.env.MYSQL_HOST,
-    port            : process.env.MYSQL_PORT,
-    user            : process.env.MYSQL_USER,
-    password        : process.env.MYSQL_PASSWORD,
-    database        : process.env.MYSQL_DATABASE
+    host            : process.env.MYSQL_HOST, //|| "aqisens.cdez79drr72p.us-east-2.rds.amazonaws.com",
+    port            : process.env.MYSQL_PORT, // || 3306,
+    user            : process.env.MYSQL_USER, // || "admin",
+    password        : process.env.MYSQL_PASSWORD, // || "w8NM%t1cBxnHCGfIq1HGF",
+    database        : process.env.MYSQL_DATABASE // || "aqidb"
 });
 var tries = 5;
 function sleep(ms) {
