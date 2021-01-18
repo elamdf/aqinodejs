@@ -11,11 +11,11 @@ var port = 80;
 /* set up sql con */
 var mysql = require("mysql");
 var con = mysql.createConnection({
-    host            : process.env.MYSQL_HOST, //|| "aqisens.cdez79drr72p.us-east-2.rds.amazonaws.com",
-    port            : process.env.MYSQL_PORT, // || 3306,
-    user            : process.env.MYSQL_USER, // || "admin",
-    password        : process.env.MYSQL_PASSWORD, // || "w8NM%t1cBxnHCGfIq1HGF",
-    database        : process.env.MYSQL_DATABASE // || "aqidb"
+    host            : process.env.MYSQL_HOST || "aqisens.cdez79drr72p.us-east-2.rds.amazonaws.com",
+    port            : process.env.MYSQL_PORT  || 3306,
+    user            : process.env.MYSQL_USER  || "admin",
+    password        : process.env.MYSQL_PASSWORD  || "w8NM%t1cBxnHCGfIq1HGF",
+    database        : process.env.MYSQL_DATABASE  || "aqidb"
 });
 var tries = 5;
 function sleep(ms) {
