@@ -18,11 +18,6 @@ var con = mysql.createConnection({
     database        : process.env.MYSQL_DATABASE  || "aqidb"
 });
 var tries = 5;
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 while (tries < 5){
 	con.connect(function(err){
 		if(err){
@@ -34,6 +29,21 @@ while (tries < 5){
 }
 app.get('/', function(req, res){
 	res.sendFile("index.html", {root:__dirname})
+});
+
+app.get("/test", function(req, res){
+	res.sendStatus(200);
+});
+
+app.post("/checkUnique", function(req, res){
+	console.log(req)
+	con.query(`SELECT COUNT(name) AS n FROM sensdata WHERE name = ? LIMIT 1`, [req.body.name], function(err, result){
+		if (err) throw err;
+		if (!result[0].n)
+			res.sendStatus(200);
+		else
+			res.sendStatus(403);
+	});
 });
 
 
