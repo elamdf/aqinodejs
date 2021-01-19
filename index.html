@@ -88,8 +88,8 @@ socket.on('chartInit', function (sample) { // initalize with historical data
 	humidityChart.addSeries({data:(sample.data.map(function(value,index) { return  [value[0], value[2]]})), name:sample.name, id:sample.name});
 });
 socket.on('chartUpdate', function (sample){
-	tempChart.get(sample.id).addPoint([sample.data[0][0], sample.data[0][1]]);
-	humidityChart.get(sample.id).addPoint([sample.data[0][0], sample.data[0][2]]);
+	tempChart.get(sample.name).addPoint([sample.data[0][0], sample.data[0][1]]);
+	humidityChart.get(sample.name).addPoint([sample.data[0][0], sample.data[0][2]]);
 });
 socket.on("averagesInit", function (sample){
 <!-- TODO put week and day averages in addition to alltime -->
