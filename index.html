@@ -1,5 +1,6 @@
 <!doctype html>
 
+<!-- TODO fix new lines w samename being generated a few mins into live updates- maybe chartinit is getting called again? -->
 <html lang="en">
 <head>
 <script src="https://code.highcharts.com/stock/highstock.js"></script>
@@ -84,7 +85,13 @@ var charts = [tempChart, humidityChart];
 </script>
 <script>
 socket.on('chartInit', function (sample) { // initalize with historical data
+	if (tempChart.get(sample.name) !== undefined){
+	tempChart.get(sample.name).remove();
+	}
 	tempChart.addSeries({data:(sample.data.map(function(value,index) { return  [value[0], value[1]]})), name:sample.name, id:sample.name});
+	if (humidityChart.get(sample.name) !== undefined){
+	humidityChart.get(sample.name).remove();
+	}
 	humidityChart.addSeries({data:(sample.data.map(function(value,index) { return  [value[0], value[2]]})), name:sample.name, id:sample.name});
 });
 socket.on('chartUpdate', function (sample){

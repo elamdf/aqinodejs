@@ -31,6 +31,11 @@ app.get('/', function(req, res){
 	res.sendFile("index.html", {root:__dirname})
 });
 
+io.sockets.on('connection', function (socket) {
+	initGraphs(socket);
+	initAverages(socket);
+});
+
 app.get("/test", function(req, res){
 	res.sendStatus(200);
 });
@@ -48,31 +53,25 @@ app.post("/checkUnique", function(req, res){
 
 
 app.post("/in", function (req, res) {
-	if (req.body.time != undefined){
-		con.query(`INSERT INTO sensdata (time, name, temp, humidity, pressure, altitude) VALUES ("${req.body.time}", "${req.body.name}", ${req.body.temp}, ${req.body.humidity}, ${req.body.pressure}, ${req.body.altitude})`, function (err, result){
+		req.body.temp = (req.body.temp === undefined) ? null : req.body.temp; // there's gotta be a better way to do this but I don't want to if statement through the possible sensor configurations and do a special query for each so here we are
+		req.body.humidity = (req.body.humidity === undefined) ? null : req.body.humidity;
+		req.body.pressure = (req.body.pressure === undefined) ? null : req.body.pressure;
+		req.body.altitude = (req.body.altitude === undefined) ? null : req.body.altitude;
+		req.body.NO2 = (req.body.NO2 === undefined) ? null : req.body.NO2;
+		req.body.NH3 = (req.body.NH3 === undefined) ? null : req.body.NH3;
+		req.body.CO = (req.body.CO === undefined) ? null : req.body.CO;
+		req.body.CO2 = (req.body.CO2 === undefined) ? null : req.body.CO2;
+		con.query(`INSERT INTO sensdata (name, temp, humidity, pressure, altitude, NO2, NH3, CO, CO2) VALUES ("${req.body.name}", ${req.body.temp}, ${req.body.humidity}, ${req.body.pressure}, ${req.body.altitude}, ${req.body.NO2}, ${req.body.NH3}, ${req.body.CO}, ${req.body.CO2})`, function (err, result){
 			if (err){
 				res.sendStatus(500);
 				throw err;
 			} else {
 			updateData();
+			res.sendStatus(200)
 			}
 		});
-	} else {
-		con.query(`INSERT INTO sensdata (name, temp, humidity, pressure, altitude) VALUES ("${req.body.name}", ${req.body.temp}, ${req.body.humidity}, ${req.body.pressure}, ${req.body.altitude})`, function (err, result){
-			if (err){
-				res.sendStatus(500);
-				throw err;
-			} else {
-			updateData();
-			}
-		});
-	}
-		res.sendStatus(200);
-})
-io.sockets.on('connection', function (socket) {
-	initGraphs(socket);
-	initAverages(socket);
 });
+
 function initGraphs(socket){
 	con.query('SELECT DISTINCT name from sensdata', function (err, results){
 			if (err) throw err;
@@ -84,6 +83,7 @@ function initGraphs(socket){
 		});
 	});
 };
+
 function initAverages(socket){ // TODO make the averages not just alltime
 	con.query('SELECT DISTINCT name from sensdata', function (err, results){
 			if (err) throw err;
@@ -100,12 +100,11 @@ function initAverages(socket){ // TODO make the averages not just alltime
 	});
 }
 
-
 function updateData() {
 	con.query('SELECT DISTINCT name from sensdata', function (err, results){
 			if (err) throw err;
 			results.forEach(elem =>{
-				con.query("SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, pressure,altitude FROM sensdata WHERE name = ? ORDER BY time DESC LIMIT 1", [elem.name], function (err, results) {
+				con.query("SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, pressure, altitude FROM sensdata WHERE name = ? ORDER BY time DESC LIMIT 1", [elem.name], function (err, results) {
 					if (err) throw err;
 						io.emit("chartUpdate", {data:results.map(Object.values), id:elem.name, name:elem.name});
 			});
