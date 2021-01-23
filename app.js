@@ -52,7 +52,6 @@ app.post("/checkUnique", function(req, res){
 
 
 app.post("/in", function (req, res) {
-		console.log(req.body)
 		req.body.temp = (req.body.temp === undefined) ? null : req.body.temp; // there's gotta be a better way to do this but I don't want to if statement through the possible sensor configurations and do a special query for each so here we are
 		req.body.humidity = (req.body.humidity === undefined) ? null : parseFloat(req.body.humidity);
 		req.body.pressure = (req.body.pressure === undefined) ? null : parseFloat(req.body.pressure);
