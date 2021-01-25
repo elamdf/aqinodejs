@@ -118,6 +118,16 @@ socket.on('chartInit', function (sample) { // initalize with historical data
 
 	// erase all current series
 
+	if (sensChart.get(sample.name+"_temp") !== undefined) {
+		sensChart.get(sample.name+"_temp").remove(true)
+		sensChart.get(sample.name+"_humidity").remove(true)
+		sensChart.get(sample.name+"_co2").remove(true)
+		sensChart.get(sample.name+"_no2").remove(true)
+		sensChart.get(sample.name+"_nh3").remove(true)
+		sensChart.get(sample.name+"_co").remove(true)
+		sensChart.get(sample.name+"_pressure").remove(true)
+	}
+
 
 	console.log("#" + colorHash(sample.name))
 	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[1]]})), name:sample.name, id:sample.name+"_temp", yAxis:0, tooltip:{valueSuffix:'°C'}, color:"#" + colorHash(sample.name)})
