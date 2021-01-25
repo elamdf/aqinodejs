@@ -11,11 +11,11 @@ var port = 80;
 /* set up sql con */
 var mysql = require("mysql");
 var con = mysql.createConnection({
-    host            : process.env.MYSQL_HOST || "aqisens.cdez79drr72p.us-east-2.rds.amazonaws.com",
-    port            : process.env.MYSQL_PORT  || 3306,
-    user            : process.env.MYSQL_USER  || "admin",
-    password        : process.env.MYSQL_PASSWORD  || "w8NM%t1cBxnHCGfIq1HGF",
-    database        : process.env.MYSQL_DATABASE  || "aqidb"
+    host            : process.env.MYSQL_HOST,
+    port            : process.env.MYSQL_PORT,
+    user            : process.env.MYSQL_USER,
+    password        : process.env.MYSQL_PASSWORD,
+    database        : process.env.MYSQL_DATABASE,
 });
 var tries = 5;
 while (tries < 5){
@@ -65,7 +65,6 @@ app.post("/in", function (req, res) {
 				res.sendStatus(500);
 				throw err;
 			} else {
-			console.log(result)
 			updateData();
 			res.sendStatus(200)
 			}
