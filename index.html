@@ -102,19 +102,31 @@ var sensChart = new Highcharts.stockChart({
 });
 
 </script>
+
+<script>
+function colorHash(str){
+	var hash = 0
+    for (var i = 0; i < str.length; i++) {
+       hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+	hash = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+	return "00000".substring(0, 6 - hash.length) + hash;
+}
+</script>
 <script>
 socket.on('chartInit', function (sample) { // initalize with historical data
 
 	// erase all current series
 
 
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[1]]})), name:sample.name, id:sample.name+"_temp", yAxis:0, tooltip:{valueSuffix:'°C'}})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[2]]})), name:sample.name, id:sample.name+"_humidity", yAxis:1, tooltip:{valueSuffix:'%'}})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[3]]})), name:sample.name, id:sample.name+"_co2", yAxis:2, tooltip:{valueSuffix:'ppm'}})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[4]]})), name:sample.name, id:sample.name+"_no2", yAxis:3, tooltip:{valueSuffix:'ppm'}})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[5]]})), name:sample.name, id:sample.name+"_nh3", yAxis:4, tooltip:{valueSuffix:'ppm'}})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[6]]})), name:sample.name, id:sample.name+"_co", yAxis:5, tooltip:{valueSuffix:'ppm'}})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[7]]})), name:sample.name, id:sample.name+"_pressure", yAxis:6, tooltip:{valueSuffix:'hPa'}})
+	console.log("#" + colorHash(sample.name))
+	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[1]]})), name:sample.name, id:sample.name+"_temp", yAxis:0, tooltip:{valueSuffix:'°C'}, color:"#" + colorHash(sample.name)})
+	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[2]]})), name:sample.name, id:sample.name+"_humidity", yAxis:1, tooltip:{valueSuffix:'%'}, color:"#" + colorHash(sample.name)})
+	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[3]]})), name:sample.name, id:sample.name+"_co2", yAxis:2, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
+	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[4]]})), name:sample.name, id:sample.name+"_no2", yAxis:3, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
+	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[5]]})), name:sample.name, id:sample.name+"_nh3", yAxis:4, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
+	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[6]]})), name:sample.name, id:sample.name+"_co", yAxis:5, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
+	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[7]]})), name:sample.name, id:sample.name+"_pressure", yAxis:6, tooltip:{valueSuffix:'hPa'}, color:"#" + colorHash(sample.name)})
 
 });
 socket.on('chartUpdate', function (sample){
