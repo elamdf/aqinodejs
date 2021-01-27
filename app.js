@@ -36,7 +36,7 @@ while (tries < 5){
 		if(err){
 			tries += 1
 			console.error("error connecting: " + err.stack);
-		}else{
+		} else {
 				if (err) throw err;
 		}
 	});
@@ -52,19 +52,19 @@ register = async function(req,res){
 
   con.query('SELECT * FROM users WHERE username = ?',[req.body.username], async function (error, results, fields) {
 	  if (results[0] == undefined) {
-  con.query('INSERT INTO users SET ?',creds, function (error, results, fields) {
-    if (error) {
-      res.send({
-        "code":400,
-        "failed":"error ocurred"
-      })
-    } else {
-      res.send({
-        "code":200,
-        "success":"user registered sucessfully"
-          });
-      }
-  });
+		  con.query('INSERT INTO users SET ?',creds, function (error, results, fields) {
+		    if (error) {
+		      res.send({
+			"code":400,
+			"failed":"error ocurred"
+		      })
+		    } else {
+		      res.send({
+			"code":200,
+			"success":"user registered sucessfully"
+			  });
+		      }
+		  });
 	  } else {
 		  res.send({
 			  "code":206,
@@ -206,7 +206,7 @@ new_data = async function(req,res){
 						  "code":206,
 						  "success":"data insert failed"
 					  })
-					throw err;
+					console.log(err)
 				} else {
 					updateData();
 					res.send({
@@ -256,7 +256,7 @@ app.get("/test", function(req, res){
 
 app.post("/checkUnique", function(req, res){
 	con.query(`SELECT COUNT(sensorname) AS n FROM sensdata WHERE sensorname = ? LIMIT 1`, [req.body.name], function(err, result){
-		if (err) throw err;
+		if (err) console.log(err);
 		if (!result[0].n)
 			res.sendStatus(200);
 		else
@@ -268,10 +268,10 @@ app.post("/checkUnique", function(req, res){
 
 function initGraphs(socket){
 	con.query('SELECT DISTINCT sensorname from sensdata', function (err, results){
-			if (err) throw err;
+			if (err) console.log(err);
 			results.forEach(elem =>{
 				con.query(`SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, CO2, NO2, NH3, CO, pressure, altitude, sensorname FROM sensdata WHERE sensorname = ?`, [elem.sensorname], function (err, results) {
-					if (err) throw err;
+					if (err) console.log(err);
 					socket.emit("chartInit", {data:results.map(Object.values), id:elem.sensorname, name:elem.sensorname})
 			});
 		});
@@ -280,17 +280,17 @@ function initGraphs(socket){
 
 function initAverages(socket){ // TODO make the averages not just alltime
 	con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(CO2) FROM sensdata`, function (err, results){
-		if (err) throw err;
+		if (err) console.log(err);
 		socket.emit("averagesInit", {data:results.map(Object.values)[0], id:"all", sensorname:"all"});
 	});
 }
 
 function updateData() {
 	con.query('SELECT DISTINCT sensorname from sensdata', function (err, results){
-			if (err) throw err;
+			if (err) console.log(err);
 			results.forEach(elem =>{
 				con.query("SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, CO2, NO2, NH3, CO, pressure, altitude, sensorname FROM sensdata WHERE sensorname = ? ORDER BY time DESC LIMIT 1", [elem.sensorname], function (err, results) {
-					if (err) throw err;
+					if (err) console.log(err);
 						io.emit("chartUpdate", {data:results.map(Object.values), id:elem.sensorname, name:elem.sensorname});
 			});
 		});
