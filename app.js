@@ -50,6 +50,8 @@ register = async function(req,res){
       "password":encryptedPassword
     }
 
+  con.query('SELECT * FROM users WHERE username = ?',[req.body.username], async function (error, results, fields) {
+	  if (results[0] == undefined) {
   con.query('INSERT INTO users SET ?',creds, function (error, results, fields) {
     if (error) {
       res.send({
@@ -63,6 +65,14 @@ register = async function(req,res){
           });
       }
   });
+	  } else {
+		  res.send({
+			  "code":206,
+			  "success":"user already exists"
+		  })
+	  }
+
+  })
 };
 regsens = async function(req, res) {
 	con.query("SHOW TABLES", function (err, results) {
@@ -161,36 +171,7 @@ login = async function(req,res){
     });
 }
 
-router.post('/register',register);
-router.post('/login',login);
-router.post('/regsens',regsens);
-app.use('/api', router);
-app.get('/', function(req, res){
-	res.sendFile("index.html", {root:__dirname})
-});
-
-io.sockets.on('connection', function (socket) {
-	initGraphs(socket);
-	initAverages(socket);
-});
-
-app.get("/test", function(req, res){
-	res.sendStatus(200);
-});
-
-app.post("/checkUnique", function(req, res){
-	con.query(`SELECT COUNT(sensorname) AS n FROM sensdata WHERE sensorname = ? LIMIT 1`, [req.body.name], function(err, result){
-		if (err) throw err;
-		if (!result[0].n)
-			res.sendStatus(200);
-		else
-			res.sendStatus(403);
-	});
-});
-
-
-app.post("/in", function (req, res) {
-
+new_data = async function(req,res){
 	var sensorname = req.body.sensorname
 	var username = req.body.username
 	var password = req.body.password
@@ -252,7 +233,38 @@ app.post("/in", function (req, res) {
       }
     }
     });
+};
+router.post('/register',register);
+router.post('/login',login);
+router.post('/regsens',regsens);
+router.post('/in',new_data);
+
+
+app.use('/api', router);
+app.get('/', function(req, res){
+	res.sendFile("index.html", {root:__dirname})
 });
+
+io.sockets.on('connection', function (socket) {
+	initGraphs(socket);
+	initAverages(socket);
+});
+
+app.get("/test", function(req, res){
+	res.sendStatus(200);
+});
+
+app.post("/checkUnique", function(req, res){
+	con.query(`SELECT COUNT(sensorname) AS n FROM sensdata WHERE sensorname = ? LIMIT 1`, [req.body.name], function(err, result){
+		if (err) throw err;
+		if (!result[0].n)
+			res.sendStatus(200);
+		else
+			res.sendStatus(403);
+	});
+});
+
+
 
 function initGraphs(socket){
 	con.query('SELECT DISTINCT sensorname from sensdata', function (err, results){
