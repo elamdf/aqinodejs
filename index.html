@@ -138,23 +138,49 @@ socket.on('chartInit', function (sample) { // initalize with historical data
 
 	// erase all current series
 
-	if (sensChart.get(sample.name+"_"+sensors[0].name) !== undefined) {
-		sensors.forEach((sensor, i) => {
-			sensChart.get(sample.name+"_"+sensors[0].name).remove(true)
-		});
+	// if (sensChart.get(sample.name+"_"+sensors[0].name) !== undefined) {
+	// 	sensors.forEach((sensor, i) => {
+	// 		sensChart.get(sample.name+"_"+sensor.name).remove(true)
+	// 	});
+	// }
+	if (sensChart.get(sample.name+"_temp") !== undefined) {
+		sensChart.get(sample.name+"_temp").remove(true)
+		sensChart.get(sample.name+"_humidity").remove(true)
+		sensChart.get(sample.name+"_co2").remove(true)
+		sensChart.get(sample.name+"_no2").remove(true)
+		sensChart.get(sample.name+"_nh3").remove(true)
+		sensChart.get(sample.name+"_co").remove(true)
+		sensChart.get(sample.name+"_pressure").remove(true)
 	}
 
 
 	console.log("#" + colorHash(sample.name));
-	console.log("test4");
+	console.log("test1");
 
-	function initLine(sensor, axis) {
+	function initLine(sensChart, sensorName, units, axis) {
 		sensChart.addSeries(
 			{
 				data:(sample.data.map(function(value,index) {
 					return [value[0],
-					value[1]]}
-				)),
+					value[1]]
+				})),
+				name:sample.name,
+				id:sample.name+"_"+sensorName,
+				yAxis:axis,
+				tooltip:{valueSuffix:units},
+				color:"#" + colorHash(sample.name)
+			}
+		);
+	}
+
+	function initLine(sensor, axis) {
+
+		sensChart.addSeries(
+			{
+				data:(sample.data.map(function(value,index) {
+					return [value[0],
+					value[axis+1]]
+				})),
 				name:sample.name,
 				id:sample.name+"_"+sensor.name,
 				yAxis:axis,
@@ -167,24 +193,16 @@ socket.on('chartInit', function (sample) { // initalize with historical data
 	sensors.forEach((sensor, i) => {
 		initLine(sensor, i)
 	});
+
+
 });
 socket.on('chartUpdate', function (sample){
-	// function updateLine(sensor, axis) {
-	// 	sensChart.get(sample.name+"_"+sensor.name).addPoint([sample.data[0][0], sample.data[0][axis]]);
-	// }
-	// sensors.forEach((sensor, i) => {
-	// 	updateLine(sensor, i);
-	// 	console.log(sensor)
-	// 	console.log(i);
-	// });
-	console.log("hi")
-	sensChart.get(sample.name+"_temp").addPoint([sample.data[0][0], sample.data[0][1]]);
-	sensChart.get(sample.name+"_humidity").addPoint([sample.data[0][0], sample.data[0][2]]);
-	sensChart.get(sample.name+"_co2").addPoint([sample.data[0][0], sample.data[0][3]]);
-	sensChart.get(sample.name+"_no2").addPoint([sample.data[0][0], sample.data[0][4]]);
-	sensChart.get(sample.name+"_nh3").addPoint([sample.data[0][0], sample.data[0][5]]);
-	sensChart.get(sample.name+"_co").addPoint([sample.data[0][0], sample.data[0][6]]);
-	sensChart.get(sample.name+"_pressure").addPoint([sample.data[0][0], sample.data[0][7]]);
+	function updateLine(sensor, axis) {
+		sensChart.get(sample.name+"_"+sensor.name).addPoint([sample.data[0][0], sample.data[0][axis+1]]);
+	}
+	sensors.forEach((sensor, i) => {
+		updateLine(sensor, i);
+	});
 });
 socket.on("averagesInit", function (sample){
 <!-- TODO put week and day averages in addition to alltime -->
