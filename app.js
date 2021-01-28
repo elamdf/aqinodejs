@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 var app = express();
 // var login = require('./routes/loginroutes');
 var bodyParser = require("body-parser");
+var session = require('express-session');
 var urlencodedParser = bodyParser.urlencoded({extended: true});
 var handlebars = require("express-handlebars");
 var router = express.Router();
@@ -14,6 +15,11 @@ app.engine("handlebars", handlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 app.use(bodyParser.urlencoded({ lextended:true}));
 app.use(bodyParser.json())
+app.use(session({
+	secret: 'BiJPakTz@@4Z^7O2h8fWAL&0c@pJmp',
+	resave: true,
+	saveUninitialized: true
+}));
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -149,10 +155,17 @@ login = async function(req,res){
       if(results[0] != undefined){
         const comparision = await bcrypt.compare(password, results[0].password)
         if(comparision){
-            res.send({
-              "code":200,
-              "success":"login sucessfull"
-            })
+		console.log(req.body)
+		if (req.body.browser) {
+			req.session.loggedin = true;
+			req.session.username = username;
+			res.redirect('/')
+		} else {
+		    res.send({
+		      "code":200,
+		      "success":"login sucessfull"
+		    })
+		}
         }
         else{
           res.send({
@@ -243,6 +256,17 @@ router.post('/in',new_data);
 app.use('/api', router);
 app.get('/', function(req, res){
 	res.sendFile("index.html", {root:__dirname})
+});
+app.get("/login", function(req, res) {
+	res.sendFile("login.html", {root:__dirname})
+});
+app.get('/home', function(request, response) {
+	if (request.session.loggedin) {
+		response.send('Welcome back, ' + request.session.username + '!');
+	} else {
+		response.send('Please login to view this page!');
+	}
+	response.end();
 });
 
 io.sockets.on('connection', function (socket) {
