@@ -155,7 +155,6 @@ login = async function(req,res){
       if(results[0] != undefined){
         const comparision = await bcrypt.compare(password, results[0].password)
         if(comparision){
-		console.log(req.body)
 		if (req.body.browser) {
 			req.session.loggedin = true;
 			req.session.username = username;
