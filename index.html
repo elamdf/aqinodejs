@@ -125,33 +125,59 @@ function colorHash(str){
 }
 </script>
 <script>
+function createSensor(sensorName, sensorUnits) {
+	return {
+		name: sensorName,
+		units: sensorUnits,
+	};
+}
+
+var sensors = [createSensor("temp", "°C"), createSensor("humidity", "%"), createSensor("co2", "ppm"), createSensor("no2", "ppm"), createSensor("nh3", "ppm"), createSensor("co", "ppm"), createSensor("pressure", "hPa")];
+
 socket.on('chartInit', function (sample) { // initalize with historical data
 
 	// erase all current series
 
-	if (sensChart.get(sample.name+"_temp") !== undefined) {
-		sensChart.get(sample.name+"_temp").remove(true)
-		sensChart.get(sample.name+"_humidity").remove(true)
-		sensChart.get(sample.name+"_co2").remove(true)
-		sensChart.get(sample.name+"_no2").remove(true)
-		sensChart.get(sample.name+"_nh3").remove(true)
-		sensChart.get(sample.name+"_co").remove(true)
-		sensChart.get(sample.name+"_pressure").remove(true)
+	if (sensChart.get(sample.name+"_"+sensors[0].name) !== undefined) {
+		sensors.forEach((sensor, i) => {
+			sensChart.get(sample.name+"_"+sensors[0].name).remove(true)
+		});
 	}
 
 
-	console.log("#" + colorHash(sample.name))
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[1]]})), name:sample.name, id:sample.name+"_temp", yAxis:0, tooltip:{valueSuffix:'°C'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[2]]})), name:sample.name, id:sample.name+"_humidity", yAxis:1, tooltip:{valueSuffix:'%'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[3]]})), name:sample.name, id:sample.name+"_co2", yAxis:2, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[4]]})), name:sample.name, id:sample.name+"_no2", yAxis:3, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[5]]})), name:sample.name, id:sample.name+"_nh3", yAxis:4, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[6]]})), name:sample.name, id:sample.name+"_co", yAxis:5, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[7]]})), name:sample.name, id:sample.name+"_pressure", yAxis:6, tooltip:{valueSuffix:'hPa'}, color:"#" + colorHash(sample.name)})
+	console.log("#" + colorHash(sample.name));
+	console.log("test4");
 
+	function initLine(sensor, axis) {
+		sensChart.addSeries(
+			{
+				data:(sample.data.map(function(value,index) {
+					return [value[0],
+					value[1]]}
+				)),
+				name:sample.name,
+				id:sample.name+"_"+sensor.name,
+				yAxis:axis,
+				tooltip:{valueSuffix:sensor.units},
+				color:"#" + colorHash(sample.name)
+			}
+		);
+	}
+
+	sensors.forEach((sensor, i) => {
+		initLine(sensor, i)
+	});
 });
 socket.on('chartUpdate', function (sample){
-
+	// function updateLine(sensor, axis) {
+	// 	sensChart.get(sample.name+"_"+sensor.name).addPoint([sample.data[0][0], sample.data[0][axis]]);
+	// }
+	// sensors.forEach((sensor, i) => {
+	// 	updateLine(sensor, i);
+	// 	console.log(sensor)
+	// 	console.log(i);
+	// });
+	console.log("hi")
 	sensChart.get(sample.name+"_temp").addPoint([sample.data[0][0], sample.data[0][1]]);
 	sensChart.get(sample.name+"_humidity").addPoint([sample.data[0][0], sample.data[0][2]]);
 	sensChart.get(sample.name+"_co2").addPoint([sample.data[0][0], sample.data[0][3]]);
@@ -164,12 +190,6 @@ socket.on("averagesInit", function (sample){
 <!-- TODO put week and day averages in addition to alltime -->
 	document.getElementById("averages").innerHTML = `<b>Average Temperature:</b>${sample.data[0]}°C <b>Average Humidity:</b>${sample.data[1]}% <b>Average Pressure:</b> ${sample.data[2]}hPa <b>Average CO2 Concentration:</b> ${sample.data[3]}ppm`
 });
-</script>
-</script>
-</body>
-</html>
-</body>
-</html>
 </script>
 <p> made by me (Elam) </p>
 </body>
