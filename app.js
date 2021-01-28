@@ -1,7 +1,6 @@
 var express = require("express")
 const bcrypt = require('bcrypt');
 var app = express();
-// var login = require('./routes/loginroutes');
 var bodyParser = require("body-parser");
 var session = require('express-session');
 var urlencodedParser = bodyParser.urlencoded({extended: true});
@@ -81,9 +80,6 @@ register = async function(req,res){
   })
 };
 regsens = async function(req, res) {
-	con.query("SHOW TABLES", function (err, results) {
-		console.log(results)
-	});
 	var sensorname = req.body.sensorname
 	var username = req.body.username
 	var password = req.body.password
@@ -143,6 +139,16 @@ regsens = async function(req, res) {
 }
 
 login = async function(req,res){
+  if (req.session.loggedin){
+      res.send({
+        "code":200,
+	"success":"you are already logged in",
+	"username":req.session.username
+      })
+	  console.log("sen")
+	return 0;
+  }
+
   var username= req.body.username;
   var password = req.body.password;
   con.query('SELECT * FROM users WHERE username = ?',[username], async function (error, results, fields) {
@@ -257,7 +263,12 @@ app.get('/', function(req, res){
 	res.sendFile("index.html", {root:__dirname})
 });
 app.get("/login", function(req, res) {
-	res.sendFile("login.html", {root:__dirname})
+	if (req.session.loggedin) {
+		res.redirect('/')
+		console.log('redirect time ')
+	} else {
+		res.sendFile("login.html", {root:__dirname});
+	}
 });
 app.get('/home', function(request, response) {
 	if (request.session.loggedin) {
