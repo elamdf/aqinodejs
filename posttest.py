@@ -2,7 +2,7 @@ import time
 import random
 import requests
 # host = "https://aqclub-service-tazpkivgxq-uw.a.run.app/in"
-host = "http://127.0.0.1/in"
+host = "http://127.0.0.1/api/in"
 rhost = "http://127.0.0.1/api/register"
 lhost = "http://127.0.0.1/api/login"
 shost = "http://127.0.0.1/api/regsens"
