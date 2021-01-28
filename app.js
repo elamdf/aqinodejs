@@ -64,11 +64,20 @@ register = async function(req,res){
 			"failed":"error ocurred"
 		      })
 		    } else {
-		      res.send({
+
+
+		if (req.body.browser) {
+			req.session.loggedin = true;
+			req.session.username = req.body.username;
+			res.redirect('/')
+		} else {
+
+			res.send({
 			"code":200,
 			"success":"user registered sucessfully"
 			  });
 		      }
+		    }
 		  });
 	  } else {
 		  res.send({
@@ -145,7 +154,6 @@ login = async function(req,res){
 	"success":"you are already logged in",
 	"username":req.session.username
       })
-	  console.log("sen")
 	return 0;
   }
 
@@ -265,9 +273,15 @@ app.get('/', function(req, res){
 app.get("/login", function(req, res) {
 	if (req.session.loggedin) {
 		res.redirect('/')
-		console.log('redirect time ')
 	} else {
 		res.sendFile("login.html", {root:__dirname});
+	}
+});
+app.get("/register", function(req, res) {
+	if (req.session.loggedin) {
+		res.redirect('/')
+	} else {
+		res.sendFile("register.html", {root:__dirname});
 	}
 });
 app.get('/home', function(request, response) {
