@@ -2,234 +2,41 @@
 
 <html lang="en">
 <head>
-<script src="https://code.highcharts.com/stock/highstock.js"></script>
-<script src="https://code.jquery.com/jquery-latest.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src='/socket.io/socket.io.js'></script>
-<script>
-var socket = io();
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+	<script src="https://code.jquery.com/jquery-latest.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	<script src='/socket.io/socket.io.js'></script>
+	<script>
+	var socket = io();
 
-Highcharts.setOptions({
-		global: {
-			useUTC: false
-		}
-});
-</script>
-<meta charset="utf-8">
+	Highcharts.setOptions({
+			global: {
+				useUTC: false
+			}
+	});
+	</script>
+	<meta charset="utf-8">
 
   <title>I love the air</title>
 
 </head>
 
 <body>
-<p id="averages"> </p>
-<div id="loginbox">
-	<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>
-</div>
-<script>
-	fetch("/api/login", {"method":"post"}).then(response => response.json()).then(data => {
-		if (data.code == 206)
-			document.getElementById("loginbox").innerHTML =	`<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>`
-		else
-			document.getElementById("loginbox").innerHTML =	`<p> welcome ${data.username}! </p>`
-	});
-</script>
-<div id="chart_container" style="min-width: 400px; height: 700px; margin: 0 auto"></div>
-
-<script>
-
-function createSensor(sensorDisplayName, sensorName, sensorUnits) {
-	return {
-		displayName: sensorDisplayName,
-		name: sensorName,
-		units: sensorUnits,
-	};
-}
-var sensors = [
-	createSensor("Temperature (°C)", "temp", "°C"),
-	createSensor("Humidity (%)", "humidity", "%"),
-	createSensor("CO₂ Concentration (ppm)", "co2", "ppm"),
-	createSensor("NO₂ Concentration (ppm)", "no2", "ppm"),
-	createSensor("NH₃ Concentration (ppm)", "nh3", "ppm"),
-	createSensor("CO Concentration (ppm)", "co", "ppm"),
-	createSensor("Air Pressure (hPa)", "pressure", "hPa")
-];
-
-sensorYAxis = [];
-for (var i = 0; i < sensors.length; i++) {
-	sensorYAxis.push({
-		title: {
-			text: sensors[i].displayName
-		},
-		top: i * (100 / sensors.length) + "%",
-		height: (100 / sensors.length) + "%",
-		id: sensors[i].name,
-	});
-}
-
-var sensChart = new Highcharts.stockChart({
-	rangeSelector: {
-		enabled: true,
-		allButtonsEnabled: true
-        },
-	title: {
-		text: 'Sensor Data'
-	},
-	yAxis: sensorYAxis,
-	// yAxis: [{
-	// 		title: {
-	// 			text: "Temperature (°C)",
-	//
-	// 		},
-	// 		height: '20%',
-	// 		id:'temp',
-	// 	},
-	// 	{
-	// 		title: {
-	// 			text: "Humidity (%)"
-	// 		},
-	// 		top: '20%',
-	// 		height: '20%',
-	// 	},
-	// 	{
-	// 		title: {
-	// 			text: "CO₂ Concentration (ppm)"
-	// 		},
-	// 		top: '40%',
-	// 		height: '20%'
-	// 	},
-	// 	{
-	// 		title: {
-	// 			text: "NO₂ Concentration (ppm)"
-	// 		},
-	// 		top: '60%',
-	// 		height: '20%'
-	// 	},
-	// 	{
-	// 		title: {
-	// 			text: "NH₃ Concentration (ppm)"
-	// 		},
-	// 		top: '80%',
-	// 		height: '10%'
-	// 	},
-	// 	{
-	// 		title: {
-	// 			text: "CO Concentration (ppm)"
-	// 		},
-	// 		top: '90%',
-	// 		height: '5%'
-	// 	},
-	// 	{
-	// 		title: {
-	// 			text: "Air Pressure (hPa)"
-	// 		},
-	// 		top: '95%',
-	// 		height: '5%'
-	//
-	// 	}
-	// ],
-	tooltip: {
-		split: true
-	},
-	chart: {
-		type: 'spline',
-		zoomType: "x",
-		renderTo: 'chart_container',
-		events: {
-		}
-	},
+	<p id="averages"> </p>
+	<div id="loginbox">
+		<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>
+	</div>
+	<script>
+		fetch("/api/login", {"method":"post"}).then(response => response.json()).then(data => {
+			if (data.code == 206)
+				document.getElementById("loginbox").innerHTML =	`<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>`
+			else
+				document.getElementById("loginbox").innerHTML =	`<p> welcome ${data.username}! </p>`
+		});
+	</script>
+	<div id="chart_container" style="min-width: 400px; height: 700px; margin: 0 auto"></div>
 
 
-});
-
-</script>
-
-<script>
-function colorHash(str){
-	var hash = 0
-    for (var i = 0; i < str.length; i++) {
-       hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-	hash = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-	return "00000".substring(0, 6 - hash.length) + hash;
-}
-</script>
-<script>
-
-socket.on('chartInit', function (sample) { // initalize with historical data
-
-	// erase all current series
-
-	// if (sensChart.get(sample.name+"_"+sensors[0].name) !== undefined) {
-	// 	sensors.forEach((sensor, i) => {
-	// 		sensChart.get(sample.name+"_"+sensor.name).remove(true)
-	// 	});
-	// }
-	if (sensChart.get(sample.name+"_temp") !== undefined) {
-		sensChart.get(sample.name+"_temp").remove(true)
-		sensChart.get(sample.name+"_humidity").remove(true)
-		sensChart.get(sample.name+"_co2").remove(true)
-		sensChart.get(sample.name+"_no2").remove(true)
-		sensChart.get(sample.name+"_nh3").remove(true)
-		sensChart.get(sample.name+"_co").remove(true)
-		sensChart.get(sample.name+"_pressure").remove(true)
-	}
-
-
-	console.log("#" + colorHash(sample.name));
-	console.log("test1");
-
-	function initLine(sensChart, sensorName, units, axis) {
-		sensChart.addSeries(
-			{
-				data:(sample.data.map(function(value,index) {
-					return [value[0],
-					value[1]]
-				})),
-				name:sample.name,
-				id:sample.name+"_"+sensorName,
-				yAxis:axis,
-				tooltip:{valueSuffix:units},
-				color:"#" + colorHash(sample.name)
-			}
-		);
-	}
-
-	function initLine(sensor, axis) {
-		sensChart.addSeries(
-			{
-				data:(sample.data.map(function(value,index) {
-					return [value[0],
-					value[axis+1]]
-				})),
-				name:sample.name,
-				id:sample.name+"_"+sensor.name,
-				yAxis:axis,
-				tooltip:{valueSuffix:sensor.units},
-				color:"#" + colorHash(sample.name)
-			}
-		);
-	}
-
-	sensors.forEach((sensor, i) => {
-		initLine(sensor, i)
-	});
-
-
-});
-socket.on('chartUpdate', function (sample){
-	function updateLine(sensor, axis) {
-		sensChart.get(sample.name+"_"+sensor.name).addPoint([sample.data[0][0], sample.data[0][axis+1]]);
-	}
-	sensors.forEach((sensor, i) => {
-		updateLine(sensor, i);
-	});
-});
-socket.on("averagesInit", function (sample){
-<!-- TODO put week and day averages in addition to alltime -->
-	document.getElementById("averages").innerHTML = `<b>Average Temperature:</b>${sample.data[0]}°C <b>Average Humidity:</b>${sample.data[1]}% <b>Average Pressure:</b> ${sample.data[2]}hPa <b>Average CO2 Concentration:</b> ${sample.data[3]}ppm`
-});
-</script>
-<p> made by me (Elam) </p>
+	<p> made by me (Elam) </p>
 </body>
 </html>
