@@ -2,164 +2,62 @@
 
 <html lang="en">
 <head>
-<script src="https://code.highcharts.com/stock/highstock.js"></script>
-<script src="https://code.jquery.com/jquery-latest.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src='/socket.io/socket.io.js'></script>
-<script>
-var socket = io();
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+	<script src="https://code.jquery.com/jquery-latest.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	<script src='/socket.io/socket.io.js'></script>
 
-Highcharts.setOptions({
-		global: {
-			useUTC: false
-		}
-});
-</script>
-<meta charset="utf-8">
+	<script src="https://kit.fontawesome.com/ccf5dd8bbb.js" crossorigin="anonymous"></script>
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" href="/css/defaults.css" />
+
+
+	<link rel="stylesheet" type="text/css" href="/css/index.css" />
+	<script src="/graph.js"></script>
+	<script>
+		var socket = io();
+
+		Highcharts.setOptions({
+			global: {
+				useUTC: false
+			}
+		});
+	</script>
+	<meta charset="utf-8">
 
   <title>I love the air</title>
 
 </head>
 
 <body>
-<p id="averages"> </p>
-<div id="chart_container" style="min-width: 400px; height: 700px; margin: 0 auto"></div>
-
-<script>
-
-var sensChart = new Highcharts.stockChart({
-	rangeSelector: {
-		enabled: true,
-		allButtonsEnabled: true
-        },
-	title: {
-		text: 'Sensor Data'
-	},
-	yAxis: [{
-			title: {
-				text: "Temperature (c)",
-
-			},
-			height: '20%',
-			id:'temp',
-		},
-		{
-			title: {
-				text: "Humidity (%)"
-			},
-			top: '20%',
-			height: '20%',
-		},
-		{
-			title: {
-				text: "CO2 Concentration"
-			},
-			top: '40%',
-			height: '20%'
-		},
-		{
-			title: {
-				text: "NO2 Concentration"
-			},
-			top: '60%',
-			height: '20%'
-		},
-		{
-			title: {
-				text: "NH3 Concentration"
-			},
-			top: '80%',
-			height: '10%'
-		},
-		{
-			title: {
-				text: "CO Concentration"
-			},
-			top: '90%',
-			height: '5%'
-		},
-		{
-			title: {
-				text: "Air Pressure"
-			},
-			top: '95%',
-			height: '5%'
-
-		}
-	],
-	tooltip: {
-		split: true
-	},
-	chart: {
-		type: 'spline',
-		zoomType: "x",
-		renderTo: 'chart_container',
-		events: {
-		}
-	},
+	<div id="loginbox">
+		<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>
+	</div>
+	<table id="averages">
+		<!-- TODO generate all of this with jquery -->
+		<tr>
+			<th>Data hasn't</th>
+			<th>loaded yet!</th>
+		</tr>
+	</table>
+	<!-- <p id="averages"></p> -->
+	<script>
+		fetch("/api/login", {"method":"post"}).then(response => response.json()).then(data => {
+			if (data.code == 206)
+				document.getElementById("loginbox").innerHTML =	`<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>`
+			else
+				document.getElementById("loginbox").innerHTML =	`<p> welcome ${data.username}! </p>`
+		});
+	</script>
+	<div id="chart_container" style="min-width: 400px; height: 700px; margin: 0 auto"></div>
 
 
-});
+	<p> made by the AHS Programming Club team: Elam, David, Rashmit</p>
 
-</script>
-
-<script>
-function colorHash(str){
-	var hash = 0
-    for (var i = 0; i < str.length; i++) {
-       hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-	hash = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-	return "00000".substring(0, 6 - hash.length) + hash;
-}
-</script>
-<script>
-socket.on('chartInit', function (sample) { // initalize with historical data
-
-	// erase all current series
-
-	if (sensChart.get(sample.name+"_temp") !== undefined) {
-		sensChart.get(sample.name+"_temp").remove(true)
-		sensChart.get(sample.name+"_humidity").remove(true)
-		sensChart.get(sample.name+"_co2").remove(true)
-		sensChart.get(sample.name+"_no2").remove(true)
-		sensChart.get(sample.name+"_nh3").remove(true)
-		sensChart.get(sample.name+"_co").remove(true)
-		sensChart.get(sample.name+"_pressure").remove(true)
-	}
+	<script>
 
 
-	console.log("#" + colorHash(sample.name))
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[1]]})), name:sample.name, id:sample.name+"_temp", yAxis:0, tooltip:{valueSuffix:'°C'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[2]]})), name:sample.name, id:sample.name+"_humidity", yAxis:1, tooltip:{valueSuffix:'%'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[3]]})), name:sample.name, id:sample.name+"_co2", yAxis:2, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[4]]})), name:sample.name, id:sample.name+"_no2", yAxis:3, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[5]]})), name:sample.name, id:sample.name+"_nh3", yAxis:4, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[6]]})), name:sample.name, id:sample.name+"_co", yAxis:5, tooltip:{valueSuffix:'ppm'}, color:"#" + colorHash(sample.name)})
-	sensChart.addSeries({data:(sample.data.map(function(value,index) { return [value[0], value[7]]})), name:sample.name, id:sample.name+"_pressure", yAxis:6, tooltip:{valueSuffix:'hPa'}, color:"#" + colorHash(sample.name)})
-
-});
-socket.on('chartUpdate', function (sample){
-
-	sensChart.get(sample.name+"_temp").addPoint([sample.data[0][0], sample.data[0][1]]);
-	sensChart.get(sample.name+"_humidity").addPoint([sample.data[0][0], sample.data[0][2]]);
-	sensChart.get(sample.name+"_co2").addPoint([sample.data[0][0], sample.data[0][3]]);
-	sensChart.get(sample.name+"_no2").addPoint([sample.data[0][0], sample.data[0][4]]);
-	sensChart.get(sample.name+"_nh3").addPoint([sample.data[0][0], sample.data[0][5]]);
-	sensChart.get(sample.name+"_co").addPoint([sample.data[0][0], sample.data[0][6]]);
-	sensChart.get(sample.name+"_pressure").addPoint([sample.data[0][0], sample.data[0][7]]);
-});
-socket.on("averagesInit", function (sample){
-<!-- TODO put week and day averages in addition to alltime -->
-	document.getElementById("averages").innerHTML = `<b>Average Temperature:</b>${sample.data[0]}°C <b>Average Humidity:</b>${sample.data[1]}% <b>Average Pressure:</b> ${sample.data[2]}hPa <b>Average CO2 Concentration:</b> ${sample.data[3]}ppm`
-});
-</script>
-</script>
-</body>
-</html>
-</body>
-</html>
-</script>
-<p> made by me (Elam) </p>
+	</script>
 </body>
 </html>
