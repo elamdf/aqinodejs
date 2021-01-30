@@ -14,6 +14,8 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http, { transports: ['websocket', 'polling'], cookie:true, secure: true });
 app.engine("handlebars", handlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
+// app.use(express.static(__dirname + '/public'));
+app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ lextended:true}));
 app.use(bodyParser.json())
 app.use(session({
