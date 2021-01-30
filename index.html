@@ -30,10 +30,17 @@
 </head>
 
 <body>
-	<p id="averages"> </p>
 	<div id="loginbox">
 		<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>
 	</div>
+	<table id="averages">
+		<!-- TODO generate all of this with jquery -->
+		<tr>
+			<th></th>
+			<th>Averages</th>
+		</tr>
+	</table>
+	<!-- <p id="averages"></p> -->
 	<script>
 		fetch("/api/login", {"method":"post"}).then(response => response.json()).then(data => {
 			if (data.code == 206)
