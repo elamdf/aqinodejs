@@ -1,44 +1,50 @@
 /* DO NOT EDIT THE CSS FILE! ONLY EDIT THE SCSS FILE AND COMPILE IT! */
 /* Overall Site Theme */
 table#averages {
-  border-radius: 35px;
+  border-radius: 25px;
   border-spacing: 0;
   margin: auto;
+  font-size: 14px;
 }
 table#averages th, table#averages td {
-  padding: 15px;
-  width: 200px;
+  padding: 10px;
+  width: 170px;
+}
+table#averages th:last-child, table#averages td:last-child {
+  width: 130px;
 }
 table#averages th {
+  border: 2px solid #51BAE5;
   background-color: #51BAE5;
   color: white;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 8px;
 }
 table#averages th:first-child {
-  border: 2px solid #51BAE5;
-  border-top-left-radius: 35px;
+  border-top-left-radius: 25px;
 }
 table#averages th:last-child {
-  border: 2px solid #51BAE5;
-  border-top-right-radius: 35px;
+  border-top-right-radius: 25px;
 }
 table#averages td {
   border: 1px solid #51BAE5;
+  text-align: center;
 }
 table#averages td:first-child {
   border-left-width: 2px;
-  text-align: right;
 }
 table#averages td:last-child {
   border-right-width: 2px;
-  text-align: left;
+}
+table#averages tr:last-child td {
+  border-bottom-width: 2px;
 }
 table#averages tr:last-child td:first-child {
-  border-bottom-width: 2px;
-  border-bottom-left-radius: 35px;
+  border-bottom-left-radius: 25px;
 }
 table#averages tr:last-child td:last-child {
-  border-bottom-width: 2px;
-  border-bottom-right-radius: 35px;
+  border-bottom-right-radius: 25px;
 }
 
 /*# sourceMappingURL=index.css.map */
