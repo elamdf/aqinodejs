@@ -1,1 +1,74 @@
 /* DO NOT EDIT THE CSS FILE! ONLY EDIT THE SCSS FILE AND COMPILE IT! */
+
+
+/* Overall Site Theme */
+$orange: #FF9872;
+$yellow: #FFC543;
+$green: #66E084;
+$blue: #51BAE5;
+$purple: #6F66FF;
+
+table#averages {
+  $border-radius: 35px;
+  $border-thickness: 2px;
+
+  // border: $border-thickness solid $blue;
+  border-radius: $border-radius;
+  border-spacing: 0;
+  margin: auto;
+
+  th, td {
+    // border: 1px solid $blue;
+    padding: 15px;
+    width: 200px;
+
+    // &:first-child {
+    //   min-width: 200px;
+    // }
+    // &:last-child {
+    //   min-width: 150px;
+    // }
+  }
+
+
+  th {
+    background-color: $blue;
+    color: white;
+    &:first-child {
+      border: $border-thickness solid $blue;
+      border-top-left-radius: $border-radius;
+    }
+    &:last-child {
+      border: $border-thickness solid $blue;
+      border-top-right-radius: $border-radius;
+    }
+  }
+
+  td {
+    border: $border-thickness/2 solid $blue;
+
+    &:first-child {
+      border-left-width: $border-thickness;
+      text-align: right;
+    }
+    &:last-child {
+      border-right-width: $border-thickness;
+      text-align: left;
+    }
+  }
+
+  tr:last-child td {
+
+    &:first-child {
+      // border: $border-thickness/2 solid $blue;
+      border-bottom-width: $border-thickness;
+      border-bottom-left-radius: $border-radius;
+    }
+    &:last-child {
+      // border: $border-thickness/2 solid $blue;
+      border-bottom-width: $border-thickness;
+      border-bottom-right-radius: $border-radius;
+    }
+  }
+
+}

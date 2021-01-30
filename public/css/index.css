@@ -1,3 +1,44 @@
 /* DO NOT EDIT THE CSS FILE! ONLY EDIT THE SCSS FILE AND COMPILE IT! */
+/* Overall Site Theme */
+table#averages {
+  border-radius: 35px;
+  border-spacing: 0;
+  margin: auto;
+}
+table#averages th, table#averages td {
+  padding: 15px;
+  width: 200px;
+}
+table#averages th {
+  background-color: #51BAE5;
+  color: white;
+}
+table#averages th:first-child {
+  border: 2px solid #51BAE5;
+  border-top-left-radius: 35px;
+}
+table#averages th:last-child {
+  border: 2px solid #51BAE5;
+  border-top-right-radius: 35px;
+}
+table#averages td {
+  border: 1px solid #51BAE5;
+}
+table#averages td:first-child {
+  border-left-width: 2px;
+  text-align: right;
+}
+table#averages td:last-child {
+  border-right-width: 2px;
+  text-align: left;
+}
+table#averages tr:last-child td:first-child {
+  border-bottom-width: 2px;
+  border-bottom-left-radius: 35px;
+}
+table#averages tr:last-child td:last-child {
+  border-bottom-width: 2px;
+  border-bottom-right-radius: 35px;
+}
 
 /*# sourceMappingURL=index.css.map */

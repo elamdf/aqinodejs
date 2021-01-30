@@ -131,7 +131,12 @@ $(document).ready(function() {
 	});
 	socket.on("averagesInit", function (sample){
 		// TODO put week and day averages in addition to alltime
-		document.getElementById("averages").innerHTML = `<b>Average Temperature:</b>${sample.data[0]}°C <b>Average Humidity:</b>${sample.data[1]}% <b>Average Pressure:</b> ${sample.data[2]}hPa <b>Average CO2 Concentration:</b> ${sample.data[3]}ppm`
+		// document.getElementById("averages").innerHTML = `<b>Average Temperature:</b>${sample.data[0]}°C <b>Average Humidity:</b>${sample.data[1]}% <b>Average Pressure:</b> ${sample.data[2]}hPa <b>Average CO2 Concentration:</b> ${sample.data[3]}ppm`
+		let tableContents = "<tr> <th>Sensors</th> <th>Averages</th> </tr>";
+		for (let i = 0; i < sensors.length; i++) {
+			tableContents += `<tr> <td>${sensors[i].displayName}</td> <td>${sample.data[i]}</td> </tr>`;
+		}
+		$("#averages").html(tableContents);
 	});
 
 });
