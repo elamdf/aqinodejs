@@ -14,15 +14,7 @@
 
 	<link rel="stylesheet" type="text/css" href="/css/index.css" />
 	<script src="/graph.js"></script>
-	<script>
-		var socket = io();
 
-		Highcharts.setOptions({
-			global: {
-				useUTC: false
-			}
-		});
-	</script>
 	<meta charset="utf-8">
 
   <title>I love the air</title>
@@ -31,11 +23,10 @@
 
 <body>
 	<header>
-		<div id="loginbox">
+		<div>
 			<a href="/login">Login</a><a href="/register">Register</a>
 		</div>
-</header>
-
+	</header>
 
 	<table id="averages">
 		<!-- TODO generate all of this with jquery -->
@@ -44,11 +35,10 @@
 			<th>loaded yet!</th>
 		</tr>
 	</table>
-	<!-- <p id="averages"></p> -->
 	<script>
 		fetch("/api/login", {"method":"post"}).then(response => response.json()).then(data => {
 			if (data.code == 206)
-				document.getElementById("loginbox").innerHTML =	`<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>`
+				document.getElementById("loginbox").innerHTML =	`<a href=\"\/login\">Login</a><a href = \"\/register\">Register</a>`
 			else
 				document.getElementById("loginbox").innerHTML =	`<p> welcome ${data.username}! </p>`
 		});
@@ -56,7 +46,7 @@
 	<div id="chart_container" style="min-width: 400px; height: 700px; margin: 0 auto"></div>
 
 
-	<p> made by the AHS Programming Club team: Elam, David, Rashmit</p>
+	<p>made by the AHS Programming Club team: Elam, David, Rashmit</p>
 
 	<script>
 

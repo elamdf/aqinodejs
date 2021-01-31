@@ -1,5 +1,13 @@
 $(document).ready(function() {
 
+	var socket = io();
+
+	Highcharts.setOptions({
+		global: {
+			useUTC: false
+		}
+	});
+
 	function createSensor(sensorDisplayName, sensorName, sensorUnits) {
 		return {
 			displayName: sensorDisplayName,

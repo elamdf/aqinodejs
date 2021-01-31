@@ -2,4 +2,9 @@
 @import "../partials/color-theme";
 @import "../partials/defaults";
 
+// @import "../partials/header";
+header {
+  background-color: $green;
+}
+
 @import "../partials/table";

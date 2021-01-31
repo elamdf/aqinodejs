@@ -17,6 +17,10 @@ body {
   font-weight: 400;
 }
 
+header {
+  background-color: #66E084;
+}
+
 table#averages {
   border-radius: 25px;
   border-spacing: 0;
