@@ -1,22 +1,3 @@
-/* DO NOT EDIT THE CSS FILE! ONLY EDIT THE SCSS FILE AND COMPILE IT! */
-/* DO NOT EDIT THE CSS FILE! ONLY EDIT THE SCSS FILE AND COMPILE IT! */
-h1, h2, h3, h4, h5, h6, p {
-  -webkit-margin-before: 0px;
-  -webkit-margin-after: 0px;
-  -webkit-margin-start: 0px;
-  -webkit-margin-end: 0px;
-  margin: 0;
-}
-
-body {
-  margin: 0;
-}
-
-* {
-  font-family: Roboto;
-  font-weight: 400;
-}
-
 table#averages {
   border-radius: 25px;
   border-spacing: 0;
@@ -64,4 +45,4 @@ table#averages tr:last-child td:last-child {
   border-bottom-right-radius: 25px;
 }
 
-/*# sourceMappingURL=index.css.map */
+/*# sourceMappingURL=_table.css.map */

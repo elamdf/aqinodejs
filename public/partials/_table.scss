@@ -1,0 +1,68 @@
+@import "color-theme";
+
+table#averages {
+  $border-radius: 25px;
+  $border-thickness: 2px;
+  $font-size: 14px;
+  $padding: 10px;
+
+  border-radius: $border-radius;
+  border-spacing: 0;
+  margin: auto;
+  font-size: $font-size;
+
+  th, td {
+    padding: $padding;
+    width: 170px;
+
+    &:first-child {
+
+    }
+    &:last-child {
+      width: 130px;
+    }
+  }
+
+
+  th {
+    border: $border-thickness solid $blue;
+    background-color: $blue;
+    color: white;
+    font-weight: 700;
+    font-size: $font-size + 2;
+    padding: $padding - 2;
+
+    &:first-child {
+      border-top-left-radius: $border-radius;
+    }
+    &:last-child {
+      border-top-right-radius: $border-radius;
+    }
+  }
+
+  td {
+    border: $border-thickness/2 solid $blue;
+    text-align: center;
+
+    &:first-child {
+      border-left-width: $border-thickness;
+      // text-align: right;
+    }
+    &:last-child {
+      border-right-width: $border-thickness;
+      // text-align: left;
+    }
+  }
+
+  tr:last-child td {
+    border-bottom-width: $border-thickness;
+
+    &:first-child {
+      border-bottom-left-radius: $border-radius;
+    }
+    &:last-child {
+      border-bottom-right-radius: $border-radius;
+    }
+  }
+
+}
