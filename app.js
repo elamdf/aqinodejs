@@ -229,6 +229,7 @@ var new_data = async function(req,res){
                     console.log(err)
                 } else {
                     updateData();
+		    console.log("b")
                     res.send({
                         "code":200,
                         "success":"data pushed!"

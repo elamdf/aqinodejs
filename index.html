@@ -28,10 +28,10 @@ Highcharts.setOptions({
 </div>
 <script>
 	fetch("/api/login", {"method":"post"}).then(response => response.json()).then(data => {
-		if (data.code == 206)
-			document.getElementById("loginbox").innerHTML =	`<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>`
-		else
+		if (data.code == 200)
 			document.getElementById("loginbox").innerHTML =	`<p> welcome ${data.username}! </p>`
+		else
+			document.getElementById("loginbox").innerHTML =	`<a href=\"\/login\"> login </a> or <a href = \"\/register\"> register </a>`
 	});
 </script>
 <div id="chart_container" style="min-width: 400px; height: 700px; margin: 0 auto"></div>
