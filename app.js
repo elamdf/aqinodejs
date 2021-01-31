@@ -313,6 +313,9 @@ app.get("/test", function(req, res){
 
 function initGraphs(socket){
     con.query('SELECT DISTINCT sensorname from sensdata', function (err, results){
+	    if (results[0] == undefined) {
+		    return
+	    }
             if (err) console.log(err);
             results.forEach(elem =>{
                 con.query(`SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, CO2, NO2, NH3, CO, pressure, altitude, sensorname FROM sensdata WHERE sensorname = ?`, [elem.sensorname], function (err, results) {
