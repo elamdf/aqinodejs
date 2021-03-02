@@ -15,7 +15,7 @@ app.set('view engine', 'handlebars');
 app.use(bodyParser.urlencoded({ lextended:true}));
 app.use(bodyParser.json())
 app.use(session({
-    secret: 'BiJPakTz@@4Z^7O2h8fWAL&0c@pJmp',
+    secret: 'BiJPakTz@@4Z^7O2h8fWAL&0c@pJmp', // who cares there's really not any damage you can do by cookie stealing
     resave: true,
     saveUninitialized: true
 }));
