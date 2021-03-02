@@ -76,13 +76,8 @@ var register = async function(req,res){
 };
 var regsens = async function(req, res) {
     var sensorname = req.body.sensorname
-    if (req.body.username === undefined){
-	var username = null;
-	var password = null
-    } else{
 	var username = req.body.username
 	var password = req.body.password
-    }
   con.query('SELECT * FROM users WHERE username = ?',[username], async function (error, results, fields) {
     if (error) {
       res.send({
@@ -90,8 +85,6 @@ var regsens = async function(req, res) {
         "failed":"error ocurred"
       })
     }else{
-	    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-	console.log(sensorname)
       if(sensorname != undefined){ // results[0] sometimes still undef if no user even if this passes
         const comparision = await bcrypt.compare(password, results[0].password)
         if(comparision) {
@@ -135,7 +128,7 @@ var regsens = async function(req, res) {
       else{
 	      console.log('what')
         res.send({
-          "code":206,
+          "code":207,
           "success":"Username does not exist"
             });
       }
@@ -203,8 +196,14 @@ var login = async function(req,res){
 
 var new_data = async function(req,res){
     var sensorname = req.body.sensorname
-    var username = req.body.username
-    var password = req.body.password
+
+    if (req.body.username === undefined){
+	var username = null;
+	var password = null
+    } else {
+	    var username = req.body.username
+	    var password = req.body.password
+    }
     req.body.temp = (req.body.temp === undefined) ? null : req.body.temp; // there's gotta be a better way to do this but I don't want to if statement through the possible sensor configurations and do a special query for each so here we are
     req.body.humidity = (req.body.humidity === undefined) ? null : parseFloat(req.body.humidity);
     req.body.pressure = (req.body.pressure === undefined) ? null : parseFloat(req.body.pressure);
@@ -214,15 +213,22 @@ var new_data = async function(req,res){
     req.body.CO = (req.body.CO === undefined) ? null : parseFloat(req.body.CO);
     req.body.CO2 = (req.body.CO2 === undefined) ? null : parseFloat(req.body.CO2);
   con.query('SELECT * FROM users WHERE username = ?',[username], async function (error, results, fields) {
-    if (error) {
+
+	if (password == null && username != null) {
+      res.send({
+        "code":400,
+        "failed":"no password entered"
+      })
+	}
+	  else if (error) {
       res.send({
         "code":400,
         "failed":"error ocurred"
       })
     }else{
-      if(results[0] != undefined){
-        const comparision = await bcrypt.compare(password, results[0].password)
-        if(comparision){
+	console.log(results)
+      if(results[0] != undefined || username == null){
+	if (username == null || await bcrypt.compare(password, results[0].password)) { // bypass login if username
           con.query('SELECT * FROM sensors WHERE sensorname = ?',[sensorname], async function (error, results, fields) {
               if (results[0] == undefined) {
                   res.send({
@@ -239,7 +245,6 @@ var new_data = async function(req,res){
                     console.log(err)
                 } else {
                     updateData();
-		    console.log("b")
                     res.send({
                         "code":200,
                         "success":"data pushed!"
