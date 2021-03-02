@@ -76,8 +76,13 @@ var register = async function(req,res){
 };
 var regsens = async function(req, res) {
     var sensorname = req.body.sensorname
-    var username = req.body.username
-    var password = req.body.password
+    if (req.body.username === undefined){
+	var username = null;
+	var password = null
+    } else{
+	var username = req.body.username
+	var password = req.body.password
+    }
   con.query('SELECT * FROM users WHERE username = ?',[username], async function (error, results, fields) {
     if (error) {
       res.send({
@@ -85,7 +90,9 @@ var regsens = async function(req, res) {
         "failed":"error ocurred"
       })
     }else{
-      if(results[0] != undefined){ // results[0] sometimes still undef if no user even if this passes
+	    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+	console.log(sensorname)
+      if(sensorname != undefined){ // results[0] sometimes still undef if no user even if this passes
         const comparision = await bcrypt.compare(password, results[0].password)
         if(comparision) {
           con.query('SELECT * FROM sensors WHERE sensorname = ?',[sensorname], async function (error, results, fields) {
@@ -95,6 +102,8 @@ var regsens = async function(req, res) {
                       "success":"sensor name is not unique"
                   })
               } else {
+
+
                 var newsens = {
                       "belongsto":username,
                       "sensorname": sensorname
@@ -109,7 +118,7 @@ var regsens = async function(req, res) {
                     } else {
                         res.send({
                         "code":200,
-                        "success":"user registered sucessfully"
+                        "success":"sensor registered sucessfully"
                         });
                     }
                 });
@@ -124,6 +133,7 @@ var regsens = async function(req, res) {
         }
       }
       else{
+	      console.log('what')
         res.send({
           "code":206,
           "success":"Username does not exist"
