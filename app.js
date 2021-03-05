@@ -75,65 +75,99 @@ var register = async function(req,res){
   })
 };
 var regsens = async function(req, res) {
+	console.log("sent for registration: ")
+	console.log(req.body)
+
     var sensorname = req.body.sensorname
 	var username = req.body.username
 	var password = req.body.password
-  con.query('SELECT * FROM users WHERE username = ?',[username], async function (error, results, fields) {
-    if (error) {
-      res.send({
-        "code":400,
-        "failed":"error ocurred"
-      })
-    }else{
-      if(sensorname != undefined){ // results[0] sometimes still undef if no user even if this passes
-        const comparision = await bcrypt.compare(password, results[0].password)
-        if(comparision) {
-          con.query('SELECT * FROM sensors WHERE sensorname = ?',[sensorname], async function (error, results, fields) {
-              if (results[0] != undefined ) {
-                  res.send({
-                      "code":206,
-                      "success":"sensor name is not unique"
-                  })
-              } else {
+        if (username != undefined) {
+	  con.query('SELECT * FROM users WHERE username = ?',[username], async function (error, results, fields) {
+	    if (error) {
+	      res.send({
+		"code":400,
+		"failed":"error ocurred"
+	      })
+	    }else{
+	      if(sensorname != undefined){ // results[0] sometimes still undef if no user even if this passes
+		const comparision = await bcrypt.compare(password, results[0].password)
+		if(comparision) {
+		  con.query('SELECT * FROM sensors WHERE sensorname = ?',[sensorname], async function (error, results, fields) {
+		      if (results[0] != undefined ) {
+			  res.send({
+			      "code":206,
+			      "success":"sensor name is not unique"
+			  })
+		      } else {
 
 
-                var newsens = {
-                      "belongsto":username,
-                      "sensorname": sensorname
-                }
-                con.query('INSERT into sensors SET ?',[newsens], async function (err, results, fields) {
-                    if (err){
-                          res.send({
-                        "code":400,
-                        "failed":"error ocurred"
-                          })
-                        console.log(error)
-                    } else {
-                        res.send({
-                        "code":200,
-                        "success":"sensor registered sucessfully"
-                        });
-                    }
-                });
-              }
-            });
-    }
-        else{
-          res.send({
-               "code":204,
-               "success":"Username and password does not match"
-          })
-        }
-      }
-      else{
-	      console.log('what')
-        res.send({
-          "code":207,
-          "success":"Username does not exist"
-            });
-      }
-    }
-    });
+			var newsens = {
+			      "belongsto":username,
+			      "sensorname": sensorname
+			}
+			con.query('INSERT into sensors SET ?',[newsens], async function (err, results, fields) {
+			    if (err){
+				  res.send({
+				"code":400,
+				"failed":"error ocurred"
+				  })
+				console.log(error)
+			    } else {
+				res.send({
+				"code":200,
+				"success":"sensor registered sucessfully"
+				});
+			    }
+			});
+		      }
+		    });
+	    }
+		else{
+		  res.send({
+		       "code":204,
+		       "success":"Username and password does not match"
+		  })
+		}
+	      }
+	      else{
+		      console.log('what')
+		res.send({
+		  "code":207,
+		  "success":"Username does not exist"
+		    });
+	      }
+	    }
+	    });
+	} else {
+		  con.query('SELECT * FROM sensors WHERE sensorname = ?',[sensorname], async function (error, results, fields) {
+		      if (results[0] != undefined ) {
+			      console.log("blocked registration of sensor " + sensorname + " due to duplicate")
+			  res.send({
+			      "code":206,
+			      "success":"sensor name is not unique"
+			  })
+		      } else {
+			var newsens = {
+			      "sensorname": sensorname
+			}
+		con.query('INSERT into sensors SET ?',[newsens], async function (err, results, fields) {
+		    if (err){
+			  res.send({
+			"code":400,
+			"failed":"error ocurred"
+			  })
+			console.log(err)
+		    } else {
+			res.send({
+			"code":200,
+			"success":"sensor registered sucessfully"
+			});
+		    }
+		});
+		      }
+		  });
+
+	}
 }
 
 var login = async function(req,res){
@@ -272,8 +306,12 @@ var new_data = async function(req,res){
 };
 
 var checkUnique = async function(req,res){
+	console.log("chceking unique... body is ")
+	console.log(req.body)
     con.query(`SELECT COUNT(sensorname) AS n FROM sensdata WHERE sensorname = ? LIMIT 1`, [req.body.name], function(err, result){
         if (err) console.log(err);
+	    console.log("uniqueness check ")
+	    console.log(result)
         if (!result[0].n)
             res.sendStatus(200);
         else
@@ -282,7 +320,7 @@ var checkUnique = async function(req,res){
 };
 router.post('/register',register);
 router.post('/login',login);
-router.post('/regsens',regsens);
+router.post('/regSens',regsens);
 router.post('/in',new_data);
 router.post('/checkUnique', checkUnique);
 
