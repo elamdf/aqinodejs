@@ -229,7 +229,6 @@ var login = async function(req,res){
 }
 
 var new_data = async function(req,res){
-	console.log(req)
     var sensorname = req.body.sensorname
 
     if (req.body.username === undefined){
