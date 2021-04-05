@@ -229,6 +229,7 @@ var login = async function(req,res){
 }
 
 var new_data = async function(req,res){
+	console.log(req)
     var sensorname = req.body.sensorname
 
     if (req.body.username === undefined){
@@ -238,14 +239,27 @@ var new_data = async function(req,res){
 	    var username = req.body.username
 	    var password = req.body.password
     }
-    req.body.temp = (req.body.temp === undefined) ? null : req.body.temp; // there's gotta be a better way to do this but I don't want to if statement through the possible sensor configurations and do a special query for each so here we are
+    req.body.temperature = (req.body.temperature === undefined) ? null : req.body.temperature; // there's gotta be a better way to do this but I don't want to if statement through the possible sensor configurations and do a special query for each so here we are
     req.body.humidity = (req.body.humidity === undefined) ? null : parseFloat(req.body.humidity);
     req.body.pressure = (req.body.pressure === undefined) ? null : parseFloat(req.body.pressure);
     req.body.altitude = (req.body.altitude === undefined) ? null : parseFloat(req.body.altitude);
-    req.body.NO2 = (req.body.NO2 === undefined) ? null : parseFloat(req.body.NO2);
-    req.body.NH3 = (req.body.NH3 === undefined) ? null : parseFloat(req.body.NH3);
-    req.body.CO = (req.body.CO === undefined) ? null : parseFloat(req.body.CO);
-    req.body.CO2 = (req.body.CO2 === undefined) ? null : parseFloat(req.body.CO2);
+    req.body.no2_conc_ppm = (req.body.no2_conc_ppm === undefined) ? null : parseFloat(req.body.no2_conc_ppm);
+    req.body.nh3_conc_ppm = (req.body.nh3_conc_ppm === undefined) ? null : parseFloat(req.body.nh3_conc_ppm);
+    req.body.co_conc_ppm = (req.body.co_conc_ppm === undefined) ? null : parseFloat(req.body.co_conc_ppm);
+    req.body.co2_conc_ppm = (req.body.co2_conc_ppm === undefined) ? null : parseFloat(req.body.co_conc_ppm);
+	req.body.pm1_0_conc_fact = (req.body.pm1_0_conc_fact === undefined) ? null : parseFloat(req.body.pm1_0_conc_fact);
+	req.body.pm2_5_conc_fact  = (req.body.pm2_5_conc_fact  === undefined) ? null : parseFloat(req.body.pm2_5_conc_fact );
+	req.body.pm10_0_conc_fact   = (req.body.pm10_0_conc_fact === undefined) ? null : parseFloat(req.body.pm10_0_conc_fact);
+	req.body.pm10_0_conc_fact   = (req.body.pm10_0_conc_fact === undefined) ? null : parseFloat(req.body.pm10_0_conc_fact);
+	req.body.pm1_0_conc_atm    = (req.body.pm1_0_conc_atm  === undefined) ? null : parseFloat(req.body.pm1_0_conc_atm );
+	req.body.pm2_5_conc_atm     = (req.body.pm2_5_conc_atm   === undefined) ? null : parseFloat(req.body.pm2_5_conc_atm  );
+	req.body.pm10_0_conc_atm      = (req.body.pm10_0_conc_atm    === undefined) ? null : parseFloat(req.body.pm10_0_conc_atm);
+	req.body.pcnt_0_3  = (req.body.pcnt_0_3 === undefined) ? null : parseFloat(req.body.pcnt_0_3);
+	req.body.pcnt_0_5   = (req.body.pcnt_0_5  === undefined) ? null : parseFloat(req.body.pcnt_0_5);
+	req.body.pcnt_1_0   = (req.body.pcnt_1_0  === undefined) ? null : parseFloat(req.body.pcnt_1_0);
+	req.body.pcnt_2_5   = (req.body.pcnt_2_5  === undefined) ? null : parseFloat(req.body.pcnt_2_5);
+	req.body.pcnt_5_0   = (req.body.pcnt_5_0  === undefined) ? null : parseFloat(req.body.pcnt_5_0);
+	req.body.pcnt_10_0   = (req.body.pcnt_10_0  === undefined) ? null : parseFloat(req.body.pcnt_10_0);
   con.query('SELECT * FROM users WHERE username = ?',[username], async function (error, results, fields) {
 
 	if (password == null && username != null) {
@@ -255,25 +269,26 @@ var new_data = async function(req,res){
       })
 	}
 	  else if (error) {
+		  console.log(error)
       res.send({
-        "code":400,
+        "code":399,
         "failed":"error ocurred"
       })
     }else{
-	console.log(results)
       if(results[0] != undefined || username == null){
 	if (username == null || await bcrypt.compare(password, results[0].password)) { // bypass login if username
           con.query('SELECT * FROM sensors WHERE sensorname = ?',[sensorname], async function (error, results, fields) {
+		  console.log(results)
               if (results[0] == undefined) {
                   res.send({
-                      "code":206,
+                      "code":208,
                       "success":"sensor doesn't exist"
                   })
               } else {
-                con.query(`INSERT INTO sensdata (sensorname, temp, humidity, pressure, altitude, NO2, NH3, CO, CO2) VALUES ("${req.body.sensorname}", ${req.body.temp}, ${req.body.humidity}, ${req.body.pressure}, ${req.body.altitude}, ${req.body.NO2}, ${req.body.NH3}, ${req.body.CO}, ${req.body.CO2})`, function (err, result){
+                con.query(`INSERT INTO sensdata (sensorname, temperature, humidity, pressure, altitude, no2_conc_ppm, nh3_conc_ppm, co_conc_ppm, co2_conc_ppm) VALUES ("${req.body.sensorname}", ${req.body.temperature}, ${req.body.humidity}, ${req.body.pressure}, ${req.body.altitude}, ${req.body.no2_conc_ppm}, ${req.body.nh3_conc_ppm}, ${req.body.co_conc_ppm}, ${req.body.co2_conc_ppm})`, function (err, result){
                 if (err){
                       res.send({
-                          "code":206,
+                          "code":207,
                           "success":"data insert failed"
                       })
                     console.log(err)
@@ -308,7 +323,7 @@ var new_data = async function(req,res){
 var checkUnique = async function(req,res){
 	console.log("chceking unique... body is ")
 	console.log(req.body)
-    con.query(`SELECT COUNT(sensorname) AS n FROM sensdata WHERE sensorname = ? LIMIT 1`, [req.body.name], function(err, result){
+    con.query(`SELECT co_conc_ppmUNT(sensorname) AS n FROM sensdata WHERE sensorname = ? LIMIT 1`, [req.body.name], function(err, result){
         if (err) console.log(err);
 	    console.log("uniqueness check ")
 	    console.log(result)
@@ -371,7 +386,7 @@ function initGraphs(socket){
 	    }
             if (err) console.log(err);
             results.forEach(elem =>{
-                con.query(`SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, CO2, NO2, NH3, CO, pressure, altitude, sensorname FROM sensdata WHERE sensorname = ?`, [elem.sensorname], function (err, results) {
+                con.query(`SELECT UNIX_TIMESTAMP(time) * 1000, temperature, humidity, co2_conc_ppm, no2_conc_ppm, nh3_conc_ppm, co_conc_ppm, pressure, altitude, sensorname FROM sensdata WHERE sensorname = ?`, [elem.sensorname], function (err, results) {
                     if (err) console.log(err);
                     socket.emit("chartInit", {data:results.map(Object.values), id:elem.sensorname, name:elem.sensorname})
             });
@@ -380,7 +395,7 @@ function initGraphs(socket){
 };
 
 function initAverages(socket){ // TODO make the averages not just alltime
-    con.query(`SELECT AVG(temp), AVG(humidity), AVG(pressure), AVG(CO2) FROM sensdata`, function (err, results){
+    con.query(`SELECT AVG(temperature), AVG(humidity), AVG(pressure), AVG(co2_conc_ppm) FROM sensdata`, function (err, results){
         if (err) console.log(err);
         socket.emit("averagesInit", {data:results.map(Object.values)[0], id:"all", sensorname:"all"});
     });
@@ -390,7 +405,7 @@ function updateData() {
     con.query('SELECT DISTINCT sensorname from sensdata', function (err, results){
             if (err) console.log(err);
             results.forEach(elem =>{
-                con.query("SELECT UNIX_TIMESTAMP(time) * 1000, temp, humidity, CO2, NO2, NH3, CO, pressure, altitude, sensorname FROM sensdata WHERE sensorname = ? ORDER BY time DESC LIMIT 1", [elem.sensorname], function (err, results) {
+                con.query("SELECT UNIX_TIMESTAMP(time) * 1000, temperature, humidity, co2_conc_ppm, no2_conc_ppm, nh3_conc_ppm, co_conc_ppm, pressure, altitude, sensorname FROM sensdata WHERE sensorname = ? ORDER BY time DESC LIMIT 1", [elem.sensorname], function (err, results) {
                     if (err) console.log(err);
                         io.emit("chartUpdate", {data:results.map(Object.values), id:elem.sensorname, name:elem.sensorname});
             });
